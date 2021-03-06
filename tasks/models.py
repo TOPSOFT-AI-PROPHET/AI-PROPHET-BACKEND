@@ -1,0 +1,21 @@
+from django.db import models
+from users.models import UserProfile
+from django.utils import timezone
+
+class AIModel(models.Model):
+    ai_id = models.BigAutoField(primary_key=True)
+    ai_url = models.TextField(verbose_name='ai link url')
+    ai_status = models.IntegerField(default=0)
+    ai_description = models.TextField(verbose_name='ai description')
+    ai_type = models.IntegerField(default=0)
+
+class Task(models.Model):
+    task_id = models.BigAutoField(primary_key=True) 
+    user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    ai_id = models.ForeignKey(AIModel, on_delete=models.CASCADE)
+    ai_json = models.TextField(verbose_name='ai req json data', blank=True)
+    ai_result = models.TextField(verbose_name='ai result json data', blank=True)
+    description = models.TextField(verbose_name='task description')
+    status = models.IntegerField(default=0)
+    time_start = models.DateTimeField(default=timezone.now)
+    time_done = models.DateTimeField(blank=True, null=True)
