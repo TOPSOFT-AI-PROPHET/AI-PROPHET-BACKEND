@@ -58,3 +58,11 @@ class register(APIView):
             data={"code": 200, "message": "Registed!"},
             status=HTTP_200_OK
         )
+
+class forgot(APIView):
+    def post(self, request):
+        pass # TODO
+
+class changePasswd(APIView):
+    def post(self, request):
+        pass # TODO

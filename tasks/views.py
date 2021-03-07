@@ -27,3 +27,15 @@ class delTask(APIView):
     
     def post(self, request):
         pass # TODO
+
+class listAIM(APIView):
+    def post(self, request):
+        pass # TODO
+    
+class addAIM(APIView):
+    def post(self, request):
+        pass # TODO
+
+class delAIM(APIView):
+    def post(self, request):
+        pass # TODO
