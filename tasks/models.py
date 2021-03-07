@@ -19,3 +19,4 @@ class Task(models.Model):
     status = models.IntegerField(default=0)
     time_start = models.DateTimeField(default=timezone.now)
     time_done = models.DateTimeField(blank=True, null=True)
+    is_delete = models.IntegerField(default=0)

@@ -11,7 +11,7 @@ class getTaskList(APIView):
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
-        myTask = Task.objects.filter(user_id=request.user)
+        myTask = Task.objects.filter(user_id=request.user, is_delete=0)
         return Response(
             data={"code": 200, "message": "Bingo!", "data": json.loads(serializers.serialize("json", myTask))},
             status=HTTP_200_OK
