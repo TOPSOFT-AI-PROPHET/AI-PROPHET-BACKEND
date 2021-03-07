@@ -25,8 +25,9 @@ SECRET_KEY = 'o%sfng4kk)4(68+)g4lw)&@4z*hxu93djv71w_^7tae34zyj&4'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+STATIC_ROOT = './static/'
 
 # Application definition
 
