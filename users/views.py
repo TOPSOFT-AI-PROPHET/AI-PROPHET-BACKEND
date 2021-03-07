@@ -6,6 +6,7 @@ from django.contrib.auth.hashers import make_password
 from django.db.models import Q
 from .models import UserProfile
 
+# 更新用户信息
 class updateUserProfile(APIView):
     permission_classes = (IsAuthenticated,)
     
@@ -18,6 +19,7 @@ class updateUserProfile(APIView):
             status=HTTP_200_OK
         )
 
+# 获取用户信息
 class getUserInfo(APIView):
     permission_classes = (IsAuthenticated,)
     
@@ -31,6 +33,7 @@ class getUserInfo(APIView):
             status=HTTP_200_OK
         )
 
+# 注册用户
 class register(APIView):
     def post(self, request):
         if '@' in request.data["username"]:
@@ -59,10 +62,12 @@ class register(APIView):
             status=HTTP_200_OK
         )
 
+# 找回密码
 class forgot(APIView):
     def post(self, request):
         pass # TODO
 
+# 修改密码
 class changePasswd(APIView):
     def post(self, request):
         pass # TODO
