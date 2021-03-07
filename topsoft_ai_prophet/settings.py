@@ -154,6 +154,10 @@ CORS_ALLOW_HEADERS = (
  'Pragma',
 )
 
+SIMPLE_JWT = {
+    'UPDATE_LAST_LOGIN': True,
+}
+
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
