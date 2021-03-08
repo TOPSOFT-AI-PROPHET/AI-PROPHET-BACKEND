@@ -20,9 +20,18 @@ class getTaskList(APIView):
 # 添加新任务
 class newTask(APIView):
     permission_classes = (IsAuthenticated,)
-    
+
     def post(self, request):
-        pass # TODO
+        user_id = request.user.id
+        ai_id = request.data['ai_id']
+        description = request.data['description']
+        time_start = request.data['time_start']
+        Task.object.create(user_id = user_id, ai_id = ai_id, description = description, time_start = time_start)
+        return Response(
+            data={"code" : 200, "message": "Bingo!",}
+        )
+
+
 
 # 删除任务
 class delTask(APIView):
