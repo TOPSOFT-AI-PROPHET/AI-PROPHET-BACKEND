@@ -29,7 +29,14 @@ class delTask(APIView):
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
-        pass # TODO
+       
+        json_string = request.body
+        json_string = json_string.decode()
+        json_data = json.loads(json_string)
+        result = TaskDetails.object.filter(user_id = request.user, task_id = json_data['task_id'])
+        result.delete()
+        return JsonResponse({"code" : 400, "data" :""})
+    
 
 # AI模型列表
 class listAIM(APIView):
