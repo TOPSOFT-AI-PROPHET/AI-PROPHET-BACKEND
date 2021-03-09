@@ -29,10 +29,7 @@ class delTask(APIView):
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
-        json_string = request.body
-        json_string = json_string.decode()
-        json_data = json.loads(json_string)
-        Task.objects.filter(user_id = request.user,task_id = json_data['task_id']).update(is_delete = 1)
+        Task.objects.filter(user_id = request.user,task_id = request.data["task_id"]).update(is_delete = 1)
         return Response(
             data={"code": 200, "message": "Success!"},
             status=HTTP_200_OK
