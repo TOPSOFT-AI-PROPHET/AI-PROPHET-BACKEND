@@ -69,5 +69,32 @@ class forgot(APIView):
 
 # 修改密码
 class changePasswd(APIView):
+    def validate_old_password(self, request):
+        user_old_password = UserProfile.objects.filter(user_id=request.user).password
+        if user_old_password != request.data["password"]:
+            raise ValidationError(
+                _('Your old password was entered incorrectly. Please enter it again.')
+            )
+        elif user_old_password == request.data["password"]: 
+            return Response(
+            data={"code": 200, "message": "User is Authenticated"},
+            status=HTTP_200_OK
+        )
     def post(self, request):
-        pass # TODO
+        request.user.password = request.data["password"]
+        request.user.save()
+        return Response(
+            data={"code": 200, "message": "User password is changed"},
+            status=HTTP_200_OK
+        )
+
+# 修改一些个人信息
+class changePersonalInfo(APIView):
+    def changeEmail(self, request):
+        request.user.email = request.data["email"]
+        request.user.save()
+        return Response(
+            data={"code": 200, "message": "User email is changed"},
+            status=HTTP_200_OK
+        )
+ 
