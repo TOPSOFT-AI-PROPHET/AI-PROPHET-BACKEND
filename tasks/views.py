@@ -22,14 +22,25 @@ class newTask(APIView):
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
-        pass # TODO
+        user_id = request.user
+        ai_id = request.data['ai_id']
+        description = request.data['description']
+        Task.object.create(user_id = user_id, ai_id = ai_id, description = description)
+        return Response(
+            data={"code" : 200, "message": "Bingo!",}
+        )
+
 
 # 删除任务
 class delTask(APIView):
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
-        pass # TODO
+        Task.objects.filter(user_id = request.user, task_id = request.data["task_id"]).update(is_delete = 1)
+        return Response(
+            data={"code": 200, "message": "Success!"},
+            status=HTTP_200_OK
+        )
 
 # AI模型列表
 class listAIM(APIView):
