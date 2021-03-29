@@ -5,6 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
 from .models import UserProfile
+from django.core.exceptions import ValidationError
+from django.contrib.auth.hashers import make_password, check_password
 
 # 更新用户信息
 class updateUserProfile(APIView):
@@ -13,6 +15,7 @@ class updateUserProfile(APIView):
     def post(self, request):
         request.user.nickname = request.data["nickname"]
         request.user.contact_number = request.data["contact_number"]
+        request.user.email = request.data["email"]
         request.user.save()
         return Response(
             data={"code": 200, "message": "Userinfo updated."},
@@ -69,28 +72,25 @@ class forgot(APIView):
 
 # 修改密码
 class changePasswd(APIView):
-    def validate_old_password(self, request):
-        user_old_password = UserProfile.objects.filter(user_id=request.user).password
-        if user_old_password != request.data["password"]:
-            raise ValidationError(
-                _('Your old password was entered incorrectly. Please enter it again.')
-            )
-        elif user_old_password == request.data["password"]: 
-            return Response(
-            data={"code": 200, "message": "User is Authenticated"},
-            status=HTTP_200_OK
-        )
+    permission_classes = (IsAuthenticated,)
     def post(self, request):
-        request.user.password = request.data["password"]
-        request.user.save()
-        return Response(
-            data={"code": 200, "message": "User password is changed"},
-            status=HTTP_200_OK
-        )
+        user_old_password = UserProfile.objects.get(id=request.user.id).password
+        if not check_password(request.data["old_password"],user_old_password):
+            raise ValidationError(
+                ('Your old password was entered incorrectly. Please enter it again.')
+           )
+        elif check_password(request.data["old_password"],user_old_password): 
+            request.user.password = make_password(request.data["new_password"], None, 'pbkdf2_sha256')
+            request.user.save()
+            return Response(
+                data={"code": 200, "message": "User password is changed"},
+                status=HTTP_200_OK
+            )
 
-# 修改一些个人信息
-class changePersonalInfo(APIView):
-    def changeEmail(self, request):
+# 上传头像
+class uploadProfile(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):
         request.user.email = request.data["email"]
         request.user.save()
         return Response(
