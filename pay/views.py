@@ -24,3 +24,27 @@ class listCharge(APIView):
 class verifyCharge(APIView):
     def post(self, request):
         pass # TODO
+
+# 充钱
+class charge(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):
+        Transaction.objects.create(user_id = request.user,status = 1,method = request.data['method'],order = request.data['order'],credit =  request.data['amount'])
+        request.user.credit = request.user.credit + request.data['amount']
+        request.user.save()
+        return Response(
+            data={"code": 200, "message": "Success!","opreation":"+" +  str(request.data['amount'])},
+            status=HTTP_200_OK
+        )
+
+# 扣钱
+class deduct(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):
+        Transaction.objects.create(user_id = request.user,status = 1,method = request.data['method'],order = request.data['order'],credit =  request.data['amount'])
+        request.user.credit = request.user.credit - request.data['amount']
+        request.user.save()
+        return Response(
+            data={"code": 200, "message": "Success!","opreation":"-" +  str(request.data['amount'])},
+            status=HTTP_200_OK
+        )
