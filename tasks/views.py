@@ -3,7 +3,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.core import serializers
-from .models import Task
+from .models import Task,AIModel
 import json
 
 # 获取任务列表
@@ -53,7 +53,12 @@ class addAIM(APIView):
     permission_classes = (IsAdminUser,)
 
     def post(self, request):
-        pass # TODO
+        new_model = {}
+        AIModel.objects.create(ai_name = request.data['ai_name'], ai_url = request.data['ai_url'], ai_status = request.data['ai_status'],ai_description = request.data['ai_description'], ai_type = request.data['ai_type'], ai_credit = request.data['ai_credit'])
+        return Response(
+            data={"code": 200, "message": "Success!"},
+            status=HTTP_200_OK
+        )
 
 # 暂时不需要实现的接口
 class delAIM(APIView):
