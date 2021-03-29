@@ -22,11 +22,11 @@ class newTask(APIView):
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
-        print(request)
+
         user_id = request.user
         ai_id = request.data['ai_id']
         description = request.data['description']
-        Task.objects.create(user_id = user_id, ai_id = ai_id, description = description)
+        Task.object.create(user_id = user_id, ai_id = ai_id, description = description)
         return Response(
             data={"code" : 200, "message": "Bingo!",}
         )
