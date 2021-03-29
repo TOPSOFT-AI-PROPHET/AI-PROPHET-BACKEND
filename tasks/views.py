@@ -5,6 +5,10 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.core import serializers
 from .models import Task
 import json
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, InvalidPage
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.http import JsonResponse
 
 # 获取任务列表
 class getTaskList(APIView):
@@ -12,21 +16,39 @@ class getTaskList(APIView):
     
     def post(self, request):
         myTask = Task.objects.filter(user_id=request.user, is_delete=0)
-        return Response(
-            data={"code": 200, "message": "Bingo!", "data": json.loads(serializers.serialize("json", myTask))},
-            status=HTTP_200_OK
-        )
+        page = request.data['page']
+        paginator = Paginator(myTask, 5)
+        response = {}
+        response['totalCount'] = paginator.count
+        response['numPerPage'] = 5
+        response['totalPage'] = paginator.num_pages
+        try:
+            tasks = paginator.page(page)
+        except PageNotAnInteger:          
+            tasks = paginator.page(1)
+        except InvalidPage:
+            return HttpResponse('cannot find the page')
+        except EmptyPage:
+            tasks = paginator.page(paginator.num_pages)
+        
+        response['pageNum'] = page
+        response['list'] = json.loads(serializers.serialize("json",myTask))
+
+        res = {}
+        res['status'] = 1
+        res['message'] = 'successs'
+        res['data'] = response
+        return JsonResponse(res)
 
 # 添加新任务
 class newTask(APIView):
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
-        print(request)
         user_id = request.user
         ai_id = request.data['ai_id']
         description = request.data['description']
-        Task.objects.create(user_id = user_id, ai_id = ai_id, description = description)
+        Task.object.create(user_id = user_id, ai_id = ai_id, description = description)
         return Response(
             data={"code" : 200, "message": "Bingo!",}
         )
