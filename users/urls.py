@@ -13,5 +13,4 @@ urlpatterns = [
     path('register', register.as_view(), name="register"),
     path('forgot', forgot.as_view(), name="forgot"),
     path('changePasswd', changePasswd.as_view(), name="changePasswd"),
-    path('uploadProfile', uploadProfile.as_view(), name="uploadProfile"),
 ]

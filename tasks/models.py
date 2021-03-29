@@ -4,7 +4,7 @@ from django.utils import timezone
 
 class AIModel(models.Model):
     ai_id = models.BigAutoField(primary_key=True)
-    ai_name = models.CharField(max_length=100)
+    ai_name = models.CharField(max_length=N)
     ai_url = models.TextField(verbose_name='ai link url')
     ai_status = models.IntegerField(default=0)
     ai_description = models.TextField(verbose_name='ai description')
