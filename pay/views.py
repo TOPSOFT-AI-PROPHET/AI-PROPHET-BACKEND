@@ -33,7 +33,7 @@ class charge(APIView):
         request.user.credit = request.user.credit + request.data['amount']
         request.user.save()
         return Response(
-            data={"code": 200, "message": "Success!","opreation":"+" +  str(request.data['amount'])},
+            data={"code": 200, "message": "Success!","operation":"+" +  str(request.data['amount'])},
             status=HTTP_200_OK
         )
 
@@ -45,6 +45,6 @@ class deduct(APIView):
         request.user.credit = request.user.credit - request.data['amount']
         request.user.save()
         return Response(
-            data={"code": 200, "message": "Success!","opreation":"-" +  str(request.data['amount'])},
+            data={"code": 200, "message": "Success!","operation":"-" +  str(request.data['amount'])},
             status=HTTP_200_OK
         )
