@@ -31,7 +31,10 @@ class getUserInfo(APIView):
             data={"code": 200, "message": "Bingo!", "data": {
                 "username": request.user.username,
                 "email": request.user.email,
-                "nickname": request.user.nickname
+                "nickname": request.user.nickname,
+                "credit": request.user.credit,
+                "contact number": request.user.contact_number,
+                "profile image url": request.user.profile_image_url
             }},
             status=HTTP_200_OK
         )
@@ -42,17 +45,17 @@ class register(APIView):
         if '@' in request.data["username"]:
             return Response(
                 data={"code": 403, "message": "Username cannot contain at symbol."},
-                status=HTTP_200_OK
+                status=HTTP_403_FORBIDDEN
             )
         if '@' not in request.data["email"]:
             return Response(
                 data={"code": 403, "message": "Email must contain at symbol."},
-                status=HTTP_200_OK
+                status=HTTP_403_FORBIDDEN
             )
         if UserProfile.objects.filter(Q(username=request.data["username"])|Q(email=request.data["email"])):
             return Response(
                 data={"code": 403, "message": "Multiple registration."},
-                status=HTTP_200_OK
+                status=HTTP_403_FORBIDDEN
             )
         UserProfile.objects.create(
             username = request.data["username"],
