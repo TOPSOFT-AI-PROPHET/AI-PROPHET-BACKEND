@@ -7,6 +7,7 @@ from django.db.models import Q
 from .models import UserProfile
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password, check_password
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 # 更新用户信息
 class updateUserProfile(APIView):
@@ -94,10 +95,14 @@ class changePasswd(APIView):
 class uploadProfile(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request):
-        request.user.email = request.data["email"]
-        request.user.save()
-        return Response(
-            data={"code": 200, "message": "User email is changed"},
+        if request.method == 'POST':
+            parser_classes = (MultiPartParser,FormParser,JSONParser)
+            #user_profile = UserProfile.objects.get(id=request.user.id).profile_image_url
+            avatar = request.FILES['avatar']
+            request.user.profile_image_url = avatar
+            request.user.save()
+            #models.UserProfile.objects.save(profile_image_url=avatar, id=request.user.id)
+            return Response(
+            data={"code": 200, "message": "profile image is updated"},
             status=HTTP_200_OK
         )
- 
