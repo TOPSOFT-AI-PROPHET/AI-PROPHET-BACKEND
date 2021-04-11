@@ -9,6 +9,11 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, Invali
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import JsonResponse
+import numpy as np
+from sklearn import *
+from sklearn.tree import DecisionTreeClassifier
+from joblib import dump, load
+from sklearn.ensemble import RandomForestClassifier
 
 # 获取任务列表
 class getTaskList(APIView):
@@ -71,25 +76,25 @@ class listAIM(APIView):
     
     def post(self, request):
         AIlist = AIModel.objects.all()
-        page = request.data['page']
-        paginator = Paginator(AIlist, 5)
+        # page = request.data['page']
+        # paginator = Paginator(AIlist, 5)
         response = {}
-        response['totalCount'] = paginator.count
-        response['numPerPage'] = 5
-        response['totalPage'] = paginator.num_pages
-        try:
-            tasks = paginator.page(page)
-        except PageNotAnInteger:          
-            tasks = paginator.page(1)
-        except InvalidPage:
-            resp = {}
-            resp["code"] = 404
-            resp['message'] = 'cannot find the page'
-            return JsonResponse(resp)
-        except EmptyPage:
-            tasks = paginator.page(paginator.num_pages)
-        response['pageNum'] = users.number
-        response['list'] = json.loads(serializers.serialize("json",AIModel.objects.all()))
+        # response['totalCount'] = paginator.count
+        # response['numPerPage'] = 5
+        # response['totalPage'] = paginator.num_pages
+        # try:
+        #     tasks = paginator.page(page)
+        # except PageNotAnInteger:          
+        #     tasks = paginator.page(1)
+        # except InvalidPage:
+        #     resp = {}
+        #     resp["code"] = 404
+        #     resp['message'] = 'cannot find the page'
+        #     return JsonResponse(resp)
+        # except EmptyPage:
+        #     tasks = paginator.page(paginator.num_pages)
+        # response['pageNum'] = users.number
+        response['list'] = json.loads(serializers.serialize("json",AIlist))
 
         res = {}
         res['status'] = 200
@@ -115,3 +120,25 @@ class delAIM(APIView):
 
     def post(self, request):
         pass # TODO
+
+
+class prediction(APIView):
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request):
+        model_instance = AIModel.objects.get(ai_id = request.data['ai_id'])
+        model = load(model_instance.ai_url)
+        parameters = [[]]
+        for i in range(request.data['total_para']):
+            parameters[0].append(request.data['data'][i]['value'])
+        parameters = np.array(parameters)
+        result = model.predict(parameters)
+
+        user_id = request.user
+        ai_id = request.data['ai_id']
+        Task.objects.create(user_id_id = user_id.id, ai_id_id = ai_id, ai_json = request.data['data'], ai_result = int(result[0]) , status = 1)
+
+        return Response(
+            data={"code" : 200, "message": "Bingo!",}
+        )
+
