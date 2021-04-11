@@ -130,7 +130,7 @@ class getAIM(APIView):
         response = AI_instance.ai_description
         res['code'] = 200
         res['message'] = 'get success'
-        res['data'] = response
+        res['data'] = json.loads(response)
         return JsonResponse(res)
 
 
