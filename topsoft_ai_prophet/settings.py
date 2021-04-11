@@ -88,7 +88,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'aiprophet',
         'USER': 'root',
-        'PASSWORD': 'cp07031230',
+        'PASSWORD': 'asd69267822',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
