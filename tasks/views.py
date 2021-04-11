@@ -121,6 +121,18 @@ class delAIM(APIView):
     def post(self, request):
         pass # TODO
 
+class getAIM(APIView):
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request):
+        AI_instance = AIModel.objects.get(ai_id = request.data['ai_id'])
+        res = {}
+        response = AI_instance.ai_description
+        res['code'] = 200
+        res['message'] = 'get success'
+        res['data'] = response
+        return JsonResponse(res)
+
 
 class prediction(APIView):
     permission_classes = (IsAdminUser,)

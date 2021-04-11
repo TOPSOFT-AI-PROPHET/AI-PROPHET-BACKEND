@@ -8,4 +8,6 @@ urlpatterns = [
     path('listAIM', listAIM.as_view(), name="listAIM"),
     path('addAIM', addAIM.as_view(), name="addAIM"),
     path('delAIM', delAIM.as_view(), name="delAIM"),
+    path('prediction', prediction.as_view(), name="prediction"),
+    path('getAIM', getAIM.as_view(), name="getAIM"),
 ]
