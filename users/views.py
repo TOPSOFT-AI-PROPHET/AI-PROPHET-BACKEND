@@ -7,6 +7,7 @@ from django.db.models import Q
 from .models import UserProfile
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password, check_password
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 # 更新用户信息
 class updateUserProfile(APIView):
@@ -31,7 +32,10 @@ class getUserInfo(APIView):
             data={"code": 200, "message": "Bingo!", "data": {
                 "username": request.user.username,
                 "email": request.user.email,
-                "nickname": request.user.nickname
+                "nickname": request.user.nickname,
+                "credit": request.user.credit,
+                "contact number": request.user.contact_number,
+                "profile image url": request.user.profile_image_url
             }},
             status=HTTP_200_OK
         )
@@ -42,17 +46,17 @@ class register(APIView):
         if '@' in request.data["username"]:
             return Response(
                 data={"code": 403, "message": "Username cannot contain at symbol."},
-                status=HTTP_200_OK
+                status=HTTP_403_FORBIDDEN
             )
         if '@' not in request.data["email"]:
             return Response(
                 data={"code": 403, "message": "Email must contain at symbol."},
-                status=HTTP_200_OK
+                status=HTTP_403_FORBIDDEN
             )
         if UserProfile.objects.filter(Q(username=request.data["username"])|Q(email=request.data["email"])):
             return Response(
                 data={"code": 403, "message": "Multiple registration."},
-                status=HTTP_200_OK
+                status=HTTP_403_FORBIDDEN
             )
         UserProfile.objects.create(
             username = request.data["username"],
@@ -91,10 +95,14 @@ class changePasswd(APIView):
 class uploadProfile(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request):
-        request.user.email = request.data["email"]
-        request.user.save()
-        return Response(
-            data={"code": 200, "message": "User email is changed"},
+        if request.method == 'POST':
+            parser_classes = (MultiPartParser,FormParser,JSONParser)
+            #user_profile = UserProfile.objects.get(id=request.user.id).profile_image_url
+            avatar = request.FILES['avatar']
+            request.user.profile_image_url = avatar
+            request.user.save()
+            #models.UserProfile.objects.save(profile_image_url=avatar, id=request.user.id)
+            return Response(
+            data={"code": 200, "message": "profile image is updated"},
             status=HTTP_200_OK
         )
- 
