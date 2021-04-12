@@ -35,7 +35,7 @@ class getUserInfo(APIView):
                 "nickname": request.user.nickname,
                 "credit": request.user.credit,
                 "contact_number": request.user.contact_number,
-                "profile_image_url": request.user.profile_image_url
+                "profile_image_uuid": request.user.profile_image_uuid
             }},
             status=HTTP_200_OK
         )

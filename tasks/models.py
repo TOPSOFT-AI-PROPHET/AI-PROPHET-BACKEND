@@ -13,7 +13,7 @@ class AIModel(models.Model):
 
 class Task(models.Model):
     task_id = models.BigAutoField(primary_key=True) 
-    user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE,default=1)
     ai_id = models.ForeignKey(AIModel, on_delete=models.CASCADE)
     ai_json = models.TextField(verbose_name='ai req json data', blank=True)
     ai_result = models.TextField(verbose_name='ai result json data', blank=True)
