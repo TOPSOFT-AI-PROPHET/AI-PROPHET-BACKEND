@@ -123,7 +123,7 @@ class numTask(APIView):
 
         def post(self, request):
             Task_num=Task.objects.filter(is_delete = 0).aggregate(Task_num = Count("task_id"))
-            Task_finish=Task.objects.filter(status = 1).aggregate(Task_finish = Count("task_id"))
+            Task_finish=Task.objects.filter(status = 1, is_delete = 0).aggregate(Task_finish = Count("task_id"))
 
             return Response(
             data={"code": 200, 'num_of_task':str(Task_num),'num_of_finished_tasks':str(Task_finish)},
