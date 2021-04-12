@@ -8,4 +8,5 @@ urlpatterns = [
     path('listAIM', listAIM.as_view(), name="listAIM"),
     path('addAIM', addAIM.as_view(), name="addAIM"),
     path('delAIM', delAIM.as_view(), name="delAIM"),
+    path('numTask', numTask.as_view(), name="numTask"),
 ]

@@ -9,6 +9,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, Invali
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.db.models import Count
 
 # 获取任务列表
 class getTaskList(APIView):
@@ -115,3 +116,16 @@ class delAIM(APIView):
 
     def post(self, request):
         pass # TODO
+
+# 统计任务数量
+class numTask(APIView):
+        permission_classes = (IsAdminUser,)
+
+        def post(self, request):
+            Task_num=Task.objects.filter(is_delete = 0).aggregate(Task_num = Count("task_id"))
+            Task_finish=Task.objects.filter(status = 1).aggregate(Task_finish = Count("task_id"))
+
+            return Response(
+            data={"code": 200, 'num_of_task':str(Task_num),'num_of_finished_tasks':str(Task_finish)},
+            status=HTTP_200_OK
+        )
