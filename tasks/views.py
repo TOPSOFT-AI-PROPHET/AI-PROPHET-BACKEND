@@ -142,7 +142,7 @@ class prediction(APIView):
         model = load(model_instance.ai_url)
         parameters = [[]]
         for i in range(request.data['total_para']):
-            parameters[0].append(request.data['data'][i]['value'])
+            parameters[0].append(int(request.data['data'][i]['value']))
         parameters = np.array(parameters)
         result = model.predict(parameters)
 
