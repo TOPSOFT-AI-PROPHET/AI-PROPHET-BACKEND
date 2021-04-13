@@ -34,8 +34,8 @@ class getUserInfo(APIView):
                 "email": request.user.email,
                 "nickname": request.user.nickname,
                 "credit": request.user.credit,
-                "contact number": request.user.contact_number,
-                "profile image url": request.user.profile_image_url
+                "contact_number": request.user.contact_number,
+                "profile_image_uuid": request.user.profile_image_uuid
             }},
             status=HTTP_200_OK
         )
