@@ -148,7 +148,7 @@ class prediction(APIView):
 
         user_id = request.user
         ai_id = request.data['ai_id']
-        Task.objects.create(user_id_id = user_id.id, ai_id_id = ai_id, ai_json = request.data['data'], ai_result = int(result[0]) , status = 1)
+        Task.objects.create(user_id_id = user_id.id, ai_id_id = ai_id, ai_json = request.data['data'], ai_result = int(result[0]) , status = 100, description = "Under development")
 
         return Response(
             data={"code" : 200, "message": "Bingo!",}
