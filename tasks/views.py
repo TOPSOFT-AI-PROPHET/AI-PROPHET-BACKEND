@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.core import serializers
 from .models import Task,AIModel
+from pay.models import Transaction
 import json
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, InvalidPage
 from django.http import HttpResponse
@@ -149,6 +150,11 @@ class prediction(APIView):
         user_id = request.user
         ai_id = request.data['ai_id']
         Task.objects.create(user_id_id = user_id.id, ai_id_id = ai_id, ai_json = request.data['data'], ai_result = int(result[0]) , status = 100, description = "Under development")
+
+        #扣费
+        Transaction.objects.create(user_id = request.user,status = 1,method = 1,order = model_instance.ai_name ,credit =  model_instance.ai_credit)
+        request.user.credit = request.user.credit - model_instance.ai_credit
+        request.user.save()
 
         return Response(
             data={"code" : 200, "message": "Bingo!",}
