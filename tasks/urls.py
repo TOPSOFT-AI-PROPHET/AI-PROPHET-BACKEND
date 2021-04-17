@@ -11,4 +11,5 @@ urlpatterns = [
     path('numTask', numTask.as_view(), name="numTask"),
     path('prediction', prediction.as_view(), name="prediction"),
     path('getAIM', getAIM.as_view(), name="getAIM"),
+    path('details', details.as_view(), name="details"),
 ]
