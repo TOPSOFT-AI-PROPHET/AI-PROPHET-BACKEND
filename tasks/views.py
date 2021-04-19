@@ -47,6 +47,9 @@ class getTaskList(APIView):
         res['data'] = response
         return JsonResponse(res)
 
+
+
+
 # 添加新任务
 class newTask(APIView):
     permission_classes = (IsAuthenticated,)
@@ -171,4 +174,26 @@ class prediction(APIView):
         return Response(
             data={"code" : 200, "message": "Bingo!",}
         )
+
+class details(APIView):
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request):
+        task_id = request.data['task_id']
+        task_instance = Task.objects.get(task_id = task_id)
+        #ai_instance = AIModel.objects.get(ai_id = task_instance.ai_id)
+        Task_description=task_instance.description
+        ai_json=task_instance.ai_json
+        ai_url=task_instance.ai_id.ai_url
+        ai_result=task_instance.ai_result
+        status=task_instance.status
+        time_start=task_instance.time_start
+        ai_credit=task_instance.ai_id.ai_credit
+        return Response(
+            data={"code" : 200, "description" : str(Task_description), "ai_json" : [ai_json], "ai_url" : str(ai_url),
+                "ai_result" : str(ai_result), "status" : status, "time_start" : time_start, "cost" : int(ai_credit)}
+        )
+
+
+
 
