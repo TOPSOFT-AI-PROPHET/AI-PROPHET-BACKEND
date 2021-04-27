@@ -127,7 +127,7 @@ class delAIM(APIView):
         pass # TODO
 # 统计任务数量
 class numTask(APIView):
-        permission_classes = (IsAdminUser,)
+        permission_classes = (IsAuthenticated,)
 
         def post(self, request):
             Task_num=Task.objects.filter(is_delete = 0).aggregate(Task_num = Count("task_id"))
@@ -138,7 +138,7 @@ class numTask(APIView):
             status=HTTP_200_OK
         )
 class getAIM(APIView):
-    permission_classes = (IsAdminUser,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         AI_instance = AIModel.objects.get(ai_id = request.data['ai_id'])
@@ -151,7 +151,7 @@ class getAIM(APIView):
 
 
 class prediction(APIView):
-    permission_classes = (IsAdminUser,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         model_instance = AIModel.objects.get(ai_id = request.data['ai_id'])
@@ -176,7 +176,7 @@ class prediction(APIView):
         )
 
 class details(APIView):
-    permission_classes = (IsAdminUser,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         task_id = request.data['task_id']
