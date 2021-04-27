@@ -10,6 +10,7 @@ class AIModel(models.Model):
     ai_description = models.TextField(verbose_name='ai description')
     ai_type = models.IntegerField(default=0)
     ai_credit = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    ai_introduction = models.TextField(verbose_name= 'ai introduction', null = True)
 
 class Task(models.Model):
     task_id = models.BigAutoField(primary_key=True) 
