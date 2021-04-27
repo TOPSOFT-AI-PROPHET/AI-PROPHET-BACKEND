@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.core import serializers
 from .models import Transaction,Cdklist
 import json
@@ -65,9 +65,21 @@ class codecharge(APIView):
 
         Transaction.objects.create(user_id = request.user,status = 1,method = 1,order = "topup",credit =  result[0].amount)
         result[0].is_used = 1
-        request.user.credit = request.user.credit - result[0].amount
+        request.user.credit = request.user.credit + result[0].amount
         result[0].save()
         request.user.save()
+        return Response(
+            data={"code": 200, "message": "Success!"},
+            status=HTTP_200_OK
+        )
+
+class generatecdk(APIView):
+    permission_classes = (IsAdminUser,)
+    def post(self, request):
+
+
+        Cdklist.objects.create(cdk = str(uuid.uuid4()), amount = request.data['amount'])
+
         return Response(
             data={"code": 200, "message": "Success!"},
             status=HTTP_200_OK
