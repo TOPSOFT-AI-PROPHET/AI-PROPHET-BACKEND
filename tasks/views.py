@@ -164,7 +164,7 @@ class prediction(APIView):
 
         user_id = request.user
         ai_id = request.data['ai_id']
-        Task.objects.create(user_id_id = user_id.id, ai_id_id = ai_id, ai_json = request.data['data'], ai_result = int(result[0]) , status = 100, description = "Under development")
+        Task.objects.create(user_id_id = user_id.id, ai_id_id = ai_id,ai_name = model_instance.ai_name, ai_json = request.data['data'], ai_result = int(result[0]) , status = 100, description = "Under development")
 
         #扣费
         Transaction.objects.create(user_id = request.user,status = 1,method = 1,order = model_instance.ai_name ,credit =  model_instance.ai_credit)

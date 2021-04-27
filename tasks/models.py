@@ -18,6 +18,7 @@ class Task(models.Model):
     ai_id = models.ForeignKey(AIModel, on_delete=models.CASCADE)
     ai_json = models.TextField(verbose_name='ai req json data', blank=True)
     ai_result = models.TextField(verbose_name='ai result json data', blank=True)
+    ai_name = models.CharField(max_length=100)
     description = models.TextField(verbose_name='task description')
     status = models.IntegerField(default=0)
     time_start = models.DateTimeField(default=timezone.now)
