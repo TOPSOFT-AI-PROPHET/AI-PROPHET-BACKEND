@@ -134,7 +134,7 @@ class numTask(APIView):
             Task_finish=Task.objects.filter(status = 100, is_delete = 0).aggregate(Task_finish = Count("task_id"))
 
             return Response(
-            data={"code": 200, "data":{"num_of_task":str(Task_num['Task_num']),"num_of_finished_tasks'":str(Task_finish['Task_finish'])}},
+            data={"code": 200, "data":{"num_of_task":str(Task_num['Task_num']),"num_of_finished_tasks":str(Task_finish['Task_finish'])}},
             status=HTTP_200_OK
         )
 class getAIM(APIView):
