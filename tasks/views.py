@@ -157,14 +157,16 @@ class prediction(APIView):
         model_instance = AIModel.objects.get(ai_id = request.data['ai_id'])
         model = load(model_instance.ai_url)
         parameters = [[]]
+        ai_json = []
         for i in range(request.data['total_para']):
             parameters[0].append(int(request.data['data'][i]['value']))
+            ai_json.append({str(i):int(request.data['data'][i]['value'])})
         parameters = np.array(parameters)
         result = model.predict(parameters)
 
         user_id = request.user
         ai_id = request.data['ai_id']
-        Task.objects.create(user_id_id = user_id.id, ai_id_id = ai_id,ai_name = model_instance.ai_name, ai_json = request.data['data'], ai_result = int(result[0]) , status = 100, description = "Under development")
+        Task.objects.create(user_id_id = user_id.id, ai_id_id = ai_id, ai_name = model_instance.ai_name, ai_json = json.dumps(ai_json), ai_result = int(result[0]) , status = 100, description = "Under development")
 
         #扣费
         Transaction.objects.create(user_id = request.user,status = 1,method = 1,order = model_instance.ai_name ,credit =  model_instance.ai_credit)
@@ -179,19 +181,32 @@ class details(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
+
         task_id = request.data['task_id']
         task_instance = Task.objects.get(task_id = task_id)
-        #ai_instance = AIModel.objects.get(ai_id = task_instance.ai_id)
+        ai_instance = AIModel.objects.get(ai_id = task_instance.ai_id.ai_id)
         Task_description=task_instance.description
-        ai_json=task_instance.ai_json
+        ai_json=json.loads(task_instance.ai_json)
         ai_url=task_instance.ai_id.ai_url
         ai_result=task_instance.ai_result
         status=task_instance.status
         time_start=task_instance.time_start
         ai_credit=task_instance.ai_id.ai_credit
+        ai_params=[]
+        sourcedata = json.loads(ai_instance.ai_description)
+
+        for i in range(sourcedata["total_param"]):
+
+            ai_params.append({"para_name":sourcedata["details"][i]["name"],"para_value":ai_json[i][str(i)]})
+
+
+
+
+    
+
         return Response(
             data={"code" : 200, "description" : str(Task_description), "ai_json" : [ai_json], "ai_url" : str(ai_url),
-                "ai_result" : str(ai_result), "status" : status, "time_start" : time_start, "cost" : int(ai_credit)}
+                "ai_result" : str(ai_result), "status" : status, "time_start" : time_start, "cost" : int(ai_credit), "ai_params" : ai_params}
         )
 
 
