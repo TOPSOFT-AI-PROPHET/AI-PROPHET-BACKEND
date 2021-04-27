@@ -18,6 +18,7 @@ class updateUserProfile(APIView):
         request.user.nickname = request.data["nickname"]
         request.user.contact_number = request.data["contact_number"]
         request.user.email = request.data["email"]
+        request.user.user_sing = request.data["user_sing"]
         request.user.save()
         return Response(
             data={"code": 200, "message": "Userinfo updated."},

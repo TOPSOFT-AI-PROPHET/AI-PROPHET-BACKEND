@@ -14,5 +14,6 @@ class UserProfile(AbstractUser):
     email = models.EmailField(blank=True, max_length=254, verbose_name='email address', validators=[UnicodeUsernameValidator()], unique=True)
     credit = models.DecimalField(max_digits=20, decimal_places=2, default=0, verbose_name='credit')
     profile_image_uuid = models.CharField(blank=True, max_length=255, verbose_name='uuid')
+    user_sing = models.CharField(blank=True, max_length=150, verbose_name='nick name')
     contact_number = models.TextField(blank=True, verbose_name='contact number')
     objects = CustomUserManager()
