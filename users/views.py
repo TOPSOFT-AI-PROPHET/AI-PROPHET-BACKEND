@@ -53,7 +53,7 @@ class updateUserProfileImage(APIView):
         response = client.put_object(
         Bucket='prophetsrc-1305001068',
         Body=file_obj.read(),
-        Key= uuid_str,
+        Key= uuid_str+".jpg",
         StorageClass='STANDARD',
         EnableMD5=False)
         user = UserProfile.objects.get(id = request.user.id)
