@@ -32,7 +32,7 @@ class updateUserProfileImage(APIView):
 
     def post(self, request):
         logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-        file_obj = request.data['file']
+        file_obj = request.data['avatar']
         
         secret_id = 'AKIDZx60e1HAamulLgNW1MUR7WdT6UkktKp4'      # 替换为用户的 secretId
         secret_key = '7xW4KOCiyyoN4WhbDySjjSu42kiPq1vx'      # 替换为用户的 secretKey

@@ -14,4 +14,5 @@ urlpatterns = [
     path('forgot', forgot.as_view(), name="forgot"),
     path('changePasswd', changePasswd.as_view(), name="changePasswd"),
     path('uploadProfile', uploadProfile.as_view(), name="uploadProfile"),
+    path('updateUserProfileImage',updateUserProfileImage.as_view(), name = "updateUserProfileImage"),
 ]
