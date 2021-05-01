@@ -125,6 +125,26 @@ class delAIM(APIView):
 
     def post(self, request):
         pass # TODO
+
+
+class validate(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        
+        ai_instance = AIModel.objects.get(ai_id = request.data['ai_id'])
+        if (ai_instance.ai_credit > request.user.credit):
+            return Response(
+            data={"code": 100},
+            status=HTTP_200_OK
+            )
+            
+        return Response(
+        data={"code": 200},
+        status=HTTP_200_OK
+        )
+
+        
 # 统计任务数量
 class numTask(APIView):
         permission_classes = (IsAuthenticated,)
