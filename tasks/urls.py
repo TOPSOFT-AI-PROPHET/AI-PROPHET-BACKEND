@@ -12,5 +12,5 @@ urlpatterns = [
     path('prediction', prediction.as_view(), name="prediction"),
     path('getAIM', getAIM.as_view(), name="getAIM"),
     path('details', details.as_view(), name="details"),
-    path('validate', validate(), name="validate"),
+    path('validate', validate().as_view(), name="validate"),
 ]
