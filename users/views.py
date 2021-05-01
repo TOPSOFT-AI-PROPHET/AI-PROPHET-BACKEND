@@ -8,6 +8,12 @@ from .models import UserProfile
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from qcloud_cos import CosConfig
+from qcloud_cos import CosS3Client
+import sys
+import logging
+import uuid
+import time
 
 # 更新用户信息
 class updateUserProfile(APIView):
