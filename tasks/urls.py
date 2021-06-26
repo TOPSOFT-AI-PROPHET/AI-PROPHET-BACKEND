@@ -13,4 +13,5 @@ urlpatterns = [
     path('getAIM', getAIM.as_view(), name="getAIM"),
     path('details', details.as_view(), name="details"),
     path('validate', validate().as_view(), name="validate"),
+    path('updatemodelImage',updatemodelImage.as_view(), name = "updatemodelImage"),
 ]
