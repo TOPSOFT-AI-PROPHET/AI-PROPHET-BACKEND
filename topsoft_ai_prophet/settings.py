@@ -60,6 +60,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
 ROOT_URLCONF = 'topsoft_ai_prophet.urls'
 
 TEMPLATES = [
@@ -130,6 +131,7 @@ REST_FRAMEWORK = {
 
 CORS_ORIGIN_WHITELIST = (
  'https://www.topsoftaiprophet.com',
+ 'https://insider.topsoftaiprophet.com'
 )
 
 CORS_ALLOW_CREDENTIALS = True
