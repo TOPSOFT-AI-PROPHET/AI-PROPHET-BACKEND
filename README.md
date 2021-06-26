@@ -20,6 +20,12 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
+### 上传代码
+#### 需要用 git status查看代码改动，不要覆盖不是你的代码
+git status
+git add XXXXXX
+git commit -m "XXXXXX"
+git push
 
 
 POSTMAN intro: https://drive.google.com/drive/folders/1R72a4_txSHJGNKpygJAiwL_eq8OH6-Nv
