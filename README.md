@@ -1,5 +1,6 @@
 # AI-PROPHET-BACKEND
 
+
 ## 所有人记得先把 python 的 virtual enviroment 给激活了然后进入之后进行下列操作
 ### 运行步骤
 ```shell
@@ -18,3 +19,7 @@ python manage.py migrate
 ```shell
 python manage.py createsuperuser
 ```
+
+
+
+POSTMAN intro: https://drive.google.com/drive/folders/1R72a4_txSHJGNKpygJAiwL_eq8OH6-Nv
