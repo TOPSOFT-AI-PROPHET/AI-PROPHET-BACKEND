@@ -88,8 +88,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'aiprophet',
-        'USER': 'coco',
-        'PASSWORD': 'liucoco1207',
+        'USER': 'root',
+        'PASSWORD': 'asd69267822',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
