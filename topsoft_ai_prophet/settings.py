@@ -88,10 +88,10 @@ WSGI_APPLICATION = 'topsoft_ai_prophet.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'aiprophet',
-        'USER': 'root',
-        'PASSWORD': 'asd69267822',
-        'HOST': '127.0.0.1',
+        'NAME': 'topsoftaiprophet',
+        'USER': 'topsoftaiprophet',
+        'PASSWORD': 'Asd69267822',
+        'HOST': '1.15.48.81',
         'PORT': '3306',
     }
 }
