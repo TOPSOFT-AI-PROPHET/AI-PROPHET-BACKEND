@@ -131,7 +131,8 @@ REST_FRAMEWORK = {
 
 CORS_ORIGIN_WHITELIST = (
  'https://www.topsoftaiprophet.com',
- 'https://insider.topsoftaiprophet.com'
+ 'https://insider.topsoftaiprophet.com',
+ 'http://insider.topsoftaiprophet.com'
 )
 
 CORS_ALLOW_CREDENTIALS = True
