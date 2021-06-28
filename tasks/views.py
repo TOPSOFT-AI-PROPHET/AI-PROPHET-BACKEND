@@ -157,6 +157,8 @@ class numTask(APIView):
             data={"code": 200, "data":{"num_of_task":str(Task_num['Task_num']),"num_of_finished_tasks":str(Task_finish['Task_finish'])}},
             status=HTTP_200_OK
         )
+
+
 class getAIM(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -167,6 +169,31 @@ class getAIM(APIView):
         res['code'] = 200
         res['message'] = 'get success'
         res['data'] = json.loads(response)
+        return JsonResponse(res)
+
+
+class getAIMusage(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        AI_instance = AIModel.objects.get(ai_id = request.data['ai_id'])
+        res = {}
+        res['code'] = 200
+        res['message'] = 'get success'
+        res['data'] = AI_instance.ai_usage
+        return JsonResponse(res)
+
+
+class incAIMusage(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        AI_instance = AIModel.objects.get(ai_id = request.data['ai_id'])
+        AI_instance.ai_usage = AI_instance.ai_usage + 1
+        AI_instance.save()
+        res = {}
+        res['code'] = 200
+        res['message'] = 'OK'
         return JsonResponse(res)
 
 
