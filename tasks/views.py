@@ -1,3 +1,5 @@
+from django.contrib.auth.models import Permission
+from django.db import models
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
@@ -263,6 +265,21 @@ class details(APIView):
                 "ai_result" : str(ai_result), "status" : status, "time_start" : time_start, "cost" : int(ai_credit), "ai_params" : ai_params}
         )
 
+class modelAuthor(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self,request):
+
+        AI_model = AIModel.objects.get(ai_id = request.data['ai_id'])
+        res = {}
+        author = AI_model.ai_author
+        publish = AI_model.ai_published
+        res['code'] = 200
+        res['message'] = 'get success'
+        res['author'] = author
+        res['publish'] = publish
+        return JsonResponse(res)
+
 class updatemodelImage(APIView):
     parser_classes = [MultiPartParser]
     permission_classes = (IsAuthenticated,)
@@ -298,6 +315,17 @@ class updatemodelImage(APIView):
         )
 
 
+#更新AI模型作者以及是否上架
+class updateAIauthor(APIView):
+    Permission_classes = (IsAuthenticated,)
 
-
+    def post(self,request):
+        tmp = AIModel.objects.get(ai_id = request.data['ai_id'])
+        tmp.ai_author = request.data['author']
+        tmp.ai_published = request.data['publish']
+        tmp.save()
+        return Response(
+            data={"code": 200, "message": "AImodel updated."},
+            status=HTTP_200_OK
+        )
 
