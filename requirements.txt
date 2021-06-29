@@ -6,7 +6,7 @@ cos-python-sdk-v5==1.9.4
 crcmod==1.7
 cryptography==3.4.6
 dicttoxml==1.7.4
-Django==3.1.7
+Django==3.1.12
 django-cors-headers==3.7.0
 django-crispy-forms==1.11.1
 djangorestframework==3.12.2
@@ -27,4 +27,4 @@ six==1.15.0
 sklearn==0.0
 sqlparse==0.4.1
 threadpoolctl==2.1.0
-urllib3==1.26.4
+urllib3==1.26.5
