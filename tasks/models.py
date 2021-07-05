@@ -17,8 +17,7 @@ class AIModel(models.Model):
     # general description about this model
     ai_author = models.CharField(max_length=100, null=True)
     ai_published = models.BooleanField(default=False)
-    ai_model_profile = models.TextField(
-        verbose_name='ai model profile', null=True)
+    ai_model_profile = models.TextField(verbose_name='ai model profile', null=True)
     ai_usage = models.IntegerField(default=0)
     training_material_count = models.IntegerField(default=0)
 
