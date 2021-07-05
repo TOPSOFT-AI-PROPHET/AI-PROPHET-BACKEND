@@ -329,3 +329,15 @@ class updateAIauthor(APIView):
             status=HTTP_200_OK
         )
 
+
+class trainingMaterialCount(APIView):
+    Permission_classes = (IsAuthenticated,)
+    
+    def post(self, request):
+        amount = AIModel.objects.get(ai_id=request.data['ai_id'])
+        AIModel.training_material_count = request.data['traning_material_count']
+        amount.save()
+        return Response(
+            data={"code": 200, "message": "AImodel updated."},
+            status=HTTP_200_OK
+        )
