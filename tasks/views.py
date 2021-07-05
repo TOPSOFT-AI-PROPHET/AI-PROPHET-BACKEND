@@ -1,3 +1,5 @@
+from django.contrib.auth.models import Permission
+from django.db import models
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
@@ -16,6 +18,13 @@ from sklearn import *
 from sklearn.tree import DecisionTreeClassifier
 from joblib import dump, load
 from sklearn.ensemble import RandomForestClassifier
+from rest_framework.parsers import MultiPartParser
+import uuid
+import sys
+import logging
+from qcloud_cos import CosConfig
+from qcloud_cos import CosS3Client
+from .models import UserProfile
 
 # 获取任务列表
 class getTaskList(APIView):
@@ -157,6 +166,8 @@ class numTask(APIView):
             data={"code": 200, "data":{"num_of_task":str(Task_num['Task_num']),"num_of_finished_tasks":str(Task_finish['Task_finish'])}},
             status=HTTP_200_OK
         )
+
+
 class getAIM(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -167,6 +178,31 @@ class getAIM(APIView):
         res['code'] = 200
         res['message'] = 'get success'
         res['data'] = json.loads(response)
+        return JsonResponse(res)
+
+
+class getAIMusage(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        AI_instance = AIModel.objects.get(ai_id = request.data['ai_id'])
+        res = {}
+        res['code'] = 200
+        res['message'] = 'get success'
+        res['data'] = AI_instance.ai_usage
+        return JsonResponse(res)
+
+
+class incAIMusage(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        AI_instance = AIModel.objects.get(ai_id = request.data['ai_id'])
+        AI_instance.ai_usage = AI_instance.ai_usage + 1
+        AI_instance.save()
+        res = {}
+        res['code'] = 200
+        res['message'] = 'OK'
         return JsonResponse(res)
 
 
@@ -229,6 +265,67 @@ class details(APIView):
                 "ai_result" : str(ai_result), "status" : status, "time_start" : time_start, "cost" : int(ai_credit), "ai_params" : ai_params}
         )
 
+class modelAuthor(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self,request):
+
+        AI_model = AIModel.objects.get(ai_id = request.data['ai_id'])
+        res = {}
+        author = AI_model.ai_author
+        publish = AI_model.ai_published
+        res['code'] = 200
+        res['message'] = 'get success'
+        res['author'] = author
+        res['publish'] = publish
+        return JsonResponse(res)
+
+class updatemodelImage(APIView):
+    parser_classes = [MultiPartParser]
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+        file_obj = request.data['modelprofile']
+        aiid = request.data['ai_id']
+        
+        secret_id = 'AKIDZx60e1HAamulLgNW1MUR7WdT6UkktKp4'      # 替换为用户的 secretId
+        secret_key = '7xW4KOCiyyoN4WhbDySjjSu42kiPq1vx'      # 替换为用户的 secretKey
+        region = 'ap-chengdu'     # 替换为用户的 Region
+        token = None                # 使用临时密钥需要传入 Token，默认为空，可不填
+        scheme = 'https'            # 指定使用 http/https 协议来访问 COS，默认为 https，可不填
+        config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
+        # 2. 获取客户端对象
+        client = CosS3Client(config)
+        uuid_namespace = uuid.uuid3(uuid.NAMESPACE_OID,str(UserProfile.objects.get(id = request.user.id).id))
+        uuid_str = str(uuid.uuid3(uuid_namespace, str(uuid.uuid4())))
+        response = client.put_object(
+        Bucket='prophetsrc-1305001068',
+        Body=file_obj.read(),
+        Key= uuid_str+".jpg",
+        StorageClass='STANDARD',
+        EnableMD5=True)
+        model = AIModel.objects.get(ai_id = aiid)
+        model.ai_model_profile = uuid_str
+        model.save()
+
+        return Response(
+            data={"code": 200, "message": "Bingo!","ETag":response['ETag'],"uuid":uuid_str},
+            status=HTTP_200_OK
+        )
 
 
+#更新AI模型作者以及是否上架
+class updateAIauthor(APIView):
+    Permission_classes = (IsAuthenticated,)
+
+    def post(self,request):
+        tmp = AIModel.objects.get(ai_id = request.data['ai_id'])
+        tmp.ai_author = request.data['author']
+        tmp.ai_published = request.data['publish']
+        tmp.save()
+        return Response(
+            data={"code": 200, "message": "AImodel updated."},
+            status=HTTP_200_OK
+        )
 
