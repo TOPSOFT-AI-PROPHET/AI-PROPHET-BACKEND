@@ -335,7 +335,7 @@ class trainingMaterialCount(APIView):
 
     def post(self, request):
         amount = AIModel.objects.get(ai_id=request.data['ai_id'])
-        AIModel.training_material_count = request.data['traning_material_count']
+        amount.ai_training_material_count = request.data['ai_traning_material_count']
         amount.save()
         return Response(
             data={"code": 200, "message": "AImodel updated."},

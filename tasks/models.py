@@ -19,7 +19,7 @@ class AIModel(models.Model):
     ai_published = models.BooleanField(default=False)
     ai_model_profile = models.TextField(verbose_name='ai model profile', null=True)
     ai_usage = models.IntegerField(default=0)
-    training_material_count = models.IntegerField(default=0)
+    ai_training_material_count = models.IntegerField(default=0)
 
 
 class Task(models.Model):
