@@ -316,18 +316,27 @@ class updatemodelImage(APIView):
 
 
 #更新AI模型作者以及是否上架
-class updateAIauthor(APIView):
+class updatePublished(APIView):
     Permission_classes = (IsAuthenticated,)
 
     def post(self,request):
-        tmp = AIModel.objects.get(ai_id = request.data['ai_id'])
-        tmp.ai_author = request.data['author']
-        tmp.ai_published = request.data['publish']
-        tmp.save()
-        return Response(
-            data={"code": 200, "message": "AImodel updated."},
-            status=HTTP_200_OK
-        )
+        AI_instance = AIModel.objects.get(ai_id = request.data['ai_id'])
+        tmp = request.data['publish']
+        res = {}
+        list = [0,1,2]
+        if AI_instance.ai_published == 2:
+            res['code'] = 200
+            res['message'] = 'The AI model publish data cannot changed'
+        else:
+            if tmp in list:
+                AI_instance.ai_published = tmp
+                AI_instance.save()
+                res['code'] = 200
+                res['message'] = 'The AI model publish data update'
+            else:
+                res['code'] = 400
+                res['message'] = 'Invalid request'
+        return Response(res)
 
 
 class trainingMaterialCount(APIView):
