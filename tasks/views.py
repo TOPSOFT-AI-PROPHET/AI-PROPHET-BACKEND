@@ -338,3 +338,15 @@ class updatePublished(APIView):
                 res['message'] = 'Invalid request'
         return Response(res)
 
+
+class trainingMaterialCount(APIView):
+    Permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        amount = AIModel.objects.get(ai_id=request.data['ai_id'])
+        amount.ai_training_material_count = request.data['ai_traning_material_count']
+        amount.save()
+        return Response(
+            data={"code": 200, "message": "AImodel updated."},
+            status=HTTP_200_OK
+        )

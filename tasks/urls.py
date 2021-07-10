@@ -18,5 +18,6 @@ urlpatterns = [
     path('incAIMusage', incAIMusage.as_view(), name="incAIMusage"),
     path('getAIMusage', getAIMusage.as_view(), name="getAIMusage"),
     path('updatemodelImage',updatemodelImage.as_view(), name = "updatemodelImage"),
+    path('trainingMaterialCount', trainingMaterialCount.as_view(),name="trainingMaterialCount")
 ]
 
