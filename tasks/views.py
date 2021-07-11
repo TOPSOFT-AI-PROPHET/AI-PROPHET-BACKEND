@@ -341,3 +341,45 @@ class trainingMaterialCount(APIView):
             data={"code": 200, "message": "AImodel updated."},
             status=HTTP_200_OK
         )
+
+
+#更新AI模型作者以及是否上架
+class updatePublished(APIView):
+    Permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        AI_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
+        tmp = request.data['publish']
+        res = {}
+        list = [0, 1, 2]
+        if AI_instance.ai_published == 2:
+            res['code'] = 200
+            res['message'] = 'The AI model publish data cannot changed'
+        else:
+            if tmp in list:
+                AI_instance.ai_published = tmp
+                AI_instance.save()
+                res['code'] = 200
+                res['message'] = 'The AI model publish data update'
+            else:
+                res['code'] = 400
+                res['message'] = 'Invalid request'
+        return Response(res)
+
+class unlockedModel(APIView):
+    Permission_classes=(IsAuthenticated,)
+
+    def post(self, request):
+        AI_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
+        list = [0, 1, 2]
+        res = {}
+        if AI_instance.ai_published == 2:
+            AI_deleted = AIModel.objects.all().filter(AI_instance.ai_published == 2) 
+            response = AI_deleted.ai_description
+            res['code'] = 200
+            res['message'] = 'get success'
+            res['data'] = json.loads(response)
+        else:
+            res['code'] = 400
+            res['message'] = 'Invalid request'
+        return JsonResponse(res)

@@ -15,6 +15,7 @@ urlpatterns = [
     path('validate', validate().as_view(), name="validate"),
     path('modelAuthor', modelAuthor().as_view(), name="modelAuthor"),
     path('updateAIauthor', updateAIauthor().as_view(), name="updateAIauthor"),
+    path('updatePublished', updatePublished().as_view(), name="updatePublished"),
     path('incAIMusage', incAIMusage.as_view(), name="incAIMusage"),
     path('getAIMusage', getAIMusage.as_view(), name="getAIMusage"),
     path('updatemodelImage',updatemodelImage.as_view(), name = "updatemodelImage"),
