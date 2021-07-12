@@ -351,7 +351,7 @@ class unlockedModel(APIView):
         AI_instance.save()
         res = {}
         res['code'] = 200
-        res['message'] = 'The AI model is successfully unfrozed' 
+        res['message'] = 'The AI model is successfully unfrozen' 
         return Response(res)
 
 
