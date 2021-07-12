@@ -1,5 +1,6 @@
 from django.contrib.auth.models import Permission
 from django.db import models
+from rest_framework import response
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
@@ -89,7 +90,7 @@ class listAIM(APIView):
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
-        AIlist = AIModel.objects.all()
+        AIlist = AIModel.objects.filter(ai_published = 1)
         # page = request.data['page']
         # paginator = Paginator(AIlist, 5)
         response = {}
@@ -350,3 +351,20 @@ class trainingMaterialCount(APIView):
             data={"code": 200, "message": "AImodel updated."},
             status=HTTP_200_OK
         )
+
+class personalAImodel(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self,request):
+        response = {}
+        user_id = request.data['user_id']
+        author = UserProfile.objects.get(id=user_id)
+        AIlist = author.aimodel_set.all()
+
+        response['list'] = json.loads(serializers.serialize("json",AIlist))
+
+        res = {}
+        res['status'] = 200
+        res['message'] = 'get success'
+        res['data'] = response
+        return JsonResponse(res)

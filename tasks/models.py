@@ -19,6 +19,8 @@ class AIModel(models.Model):
     ai_model_profile = models.TextField(verbose_name= 'ai model profile', null = True)
     ai_usage = models.IntegerField(default=0)
     ai_training_material_count = models.IntegerField(default=0)
+    # foreign key of UserProfile
+    UserProfile = models.ForeignKey(to=UserProfile, on_delete=models.CASCADE, default='')
 
 
 class Task(models.Model):
