@@ -31,7 +31,7 @@ class updateUserProfile(APIView):
             status=HTTP_200_OK
         )
 
-# 修改用户头像
+# 修改用户头像 need to build connection to cos service and use uuid to encrpt it
 class updateUserProfileImage(APIView):
     parser_classes = [MultiPartParser]
     permission_classes = (IsAuthenticated,)
@@ -39,14 +39,14 @@ class updateUserProfileImage(APIView):
     def post(self, request):
         logging.basicConfig(level=logging.INFO, stream=sys.stdout)
         file_obj = request.data['avatar']
-        
+        # build cos connection
         secret_id = 'AKIDZx60e1HAamulLgNW1MUR7WdT6UkktKp4'      # 替换为用户的 secretId
         secret_key = '7xW4KOCiyyoN4WhbDySjjSu42kiPq1vx'      # 替换为用户的 secretKey
         region = 'ap-chengdu'     # 替换为用户的 Region
         token = None                # 使用临时密钥需要传入 Token，默认为空，可不填
         scheme = 'https'            # 指定使用 http/https 协议来访问 COS，默认为 https，可不填
         config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
-        # 2. 获取客户端对象
+        # 获取客户端对象
         client = CosS3Client(config)
         uuid_namespace = uuid.uuid3(uuid.NAMESPACE_OID,str(UserProfile.objects.get(id = request.user.id).id))
         uuid_str = str(uuid.uuid3(uuid_namespace, "avatar"))
@@ -118,7 +118,7 @@ class forgot(APIView):
     def post(self, request):
         pass # TODO
 
-# 修改密码
+# 修改密码 use pbkdf2_sha256 to verifie input old password
 class changePasswd(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request):
@@ -134,19 +134,3 @@ class changePasswd(APIView):
                 data={"code": 200, "message": "User password is changed"},
                 status=HTTP_200_OK
             )
-
-# 上传头像
-class uploadProfile(APIView):
-    permission_classes = (IsAuthenticated,)
-    def post(self, request):
-        if request.method == 'POST':
-            parser_classes = (MultiPartParser,FormParser,JSONParser)
-            #user_profile = UserProfile.objects.get(id=request.user.id).profile_image_url
-            avatar = request.FILES['avatar']
-            request.user.profile_image_url = avatar
-            request.user.save()
-            #models.UserProfile.objects.save(profile_image_url=avatar, id=request.user.id)
-            return Response(
-            data={"code": 200, "message": "profile image is updated"},
-            status=HTTP_200_OK
-        )

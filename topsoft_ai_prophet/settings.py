@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'drf_yasg2',
 ]
 
 AUTH_USER_MODEL = "users.UserProfile"

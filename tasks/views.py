@@ -35,6 +35,7 @@ class getTaskList(APIView):
         page = request.data['page']
         paginator = Paginator(myTask, 5)
         response = {}
+        # pagination 
         response['totalCount'] = paginator.count
         response['numPerPage'] = 5
         response['totalPage'] = paginator.num_pages
@@ -67,6 +68,7 @@ class newTask(APIView):
         user_id = request.user
         ai_id = request.data['ai_id']
         description = request.data['description']
+        # if you are confused just think in this way: ai_id_id = ai_id and user_id_id = user_id
         Task.objects.create(user_id_id = user_id.id, ai_id_id = ai_id, description = description)
         return Response(
             data={"code" : 200, "message": "Bingo!",}
@@ -78,6 +80,7 @@ class delTask(APIView):
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
+        # we use logical deletion 
         Task.objects.filter(user_id = request.user, task_id = request.data["task_id"]).update(is_delete = 1)
         return Response(
             data={"code": 200, "message": "Success!"},
@@ -135,7 +138,7 @@ class delAIM(APIView):
     def post(self, request):
         pass # TODO
 
-
+# verifie whether a user holds enough credit to run tasks
 class validate(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -154,7 +157,7 @@ class validate(APIView):
         )
 
         
-# 统计任务数量
+# 统计现有任务数量和已完成任务数量
 class numTask(APIView):
         permission_classes = (IsAuthenticated,)
 
@@ -167,7 +170,7 @@ class numTask(APIView):
             status=HTTP_200_OK
         )
 
-
+# get ai_model description 
 class getAIM(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -180,7 +183,7 @@ class getAIM(APIView):
         res['data'] = json.loads(response)
         return JsonResponse(res)
 
-
+# return how many times does this ai_model be used 
 class getAIMusage(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -192,7 +195,7 @@ class getAIMusage(APIView):
         res['data'] = AI_instance.ai_usage
         return JsonResponse(res)
 
-
+# when this api be called, usage of this ai_model will plus one
 class incAIMusage(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -205,7 +208,7 @@ class incAIMusage(APIView):
         res['message'] = 'OK'
         return JsonResponse(res)
 
-
+# call ai_model and pass in parameters which minus credit automatically 
 class prediction(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -233,6 +236,7 @@ class prediction(APIView):
             data={"code" : 200, "message": "Bingo!",}
         )
 
+# return ai_model details 
 class details(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -255,16 +259,12 @@ class details(APIView):
 
             ai_params.append({"para_name":sourcedata["details"][i]["name"],"para_value":ai_json[i][str(i)]})
 
-
-
-
-    
-
         return Response(
             data={"code" : 200, "description" : str(Task_description), "ai_json" : [ai_json], "ai_url" : str(ai_url),
                 "ai_result" : str(ai_result), "status" : status, "time_start" : time_start, "cost" : int(ai_credit), "ai_params" : ai_params}
         )
 
+# return model author 
 class modelAuthor(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -280,6 +280,7 @@ class modelAuthor(APIView):
         res['publish'] = publish
         return JsonResponse(res)
 
+# we need to connect with cos service and pass in with uuid encrypted information
 class updatemodelImage(APIView):
     parser_classes = [MultiPartParser]
     permission_classes = (IsAuthenticated,)
@@ -338,7 +339,7 @@ class updatePublished(APIView):
                 res['message'] = 'Invalid request'
         return Response(res)
 
-
+# count how many training materials are passed in to train model
 class trainingMaterialCount(APIView):
     Permission_classes = (IsAuthenticated,)
 

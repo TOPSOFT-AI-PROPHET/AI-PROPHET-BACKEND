@@ -38,13 +38,14 @@ class uploadFile(APIView):
 
 # 上传文件_cos
 class uploadFile_cos(APIView):
-    parser_classes = [MultiPartParser]
+    parser_classes = [MultiPartParser] # for uploading different data in different data type
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
         logging.basicConfig(level=logging.INFO, stream=sys.stdout)
         file_obj = request.FILES['upload_file']
         
+        # Steps needed to verifie the identity
         secret_id = 'AKIDZx60e1HAamulLgNW1MUR7WdT6UkktKp4'      # 替换为用户的 secretId
         secret_key = '7xW4KOCiyyoN4WhbDySjjSu42kiPq1vx'      # 替换为用户的 secretKey
         region = 'ap-chengdu'     # 替换为用户的 Region
@@ -53,14 +54,17 @@ class uploadFile_cos(APIView):
         config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
         # 2. 获取客户端对象
         client = CosS3Client(config)
+        # Generate uuid for secuirty need
         uuid_namespace = uuid.uuid4()
         uuid_str = str(uuid_namespace)+str(time.time())
+        # front end needs these info
         response = client.put_object(
         Bucket='prophetsrc-1305001068',
         Body=file_obj.read(),
         Key= uuid_str,
         StorageClass='STANDARD',
         EnableMD5=False)
+       
         user = UserProfile.objects.get(id = request.user.id)
         user.profile_image_uuid = uuid_str
         user.save()
@@ -77,6 +81,7 @@ class getFile(APIView):
             try:
                 file_obj = File.objects.get(file_uuid=uuid)
                 if file_obj :
+                    # please refer to cos offical documentation to understand 
                     response = FileResponse(ContentFile(file_obj.file_bin), filename=file_obj.file_name)
                     response['Content-Type'] = 'application/octet-stream'
                     return response
@@ -93,6 +98,7 @@ class delFile(APIView):
         uuid = request.GET.get('uuid')
         if uuid :
             try:
+                # please refer to cos offical documentation to understand 
                 File.objects.get(file_uuid=uuid).delete()
                 return Response(
                     data={"code": 200, "message": "Bingo!"},
