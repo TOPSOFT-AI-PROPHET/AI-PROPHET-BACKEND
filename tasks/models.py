@@ -12,13 +12,17 @@ class AIModel(models.Model):
     # descibe how many parameters
     ai_type = models.IntegerField(default=0)
     ai_credit = models.DecimalField(max_digits=20, decimal_places=2, default=0)
-    ai_true_description = models.TextField(verbose_name= 'ai introduction', null = True)
-    # general description about this model    
-    ai_author = models.CharField(max_length=100, null = True)
+    ai_true_description = models.TextField(
+        verbose_name='ai introduction', null=True)
+    # general description about this model
+    ai_author = models.CharField(max_length=100, null=True)
     ai_published = models.IntegerField(default=0)
-    ai_model_profile = models.TextField(verbose_name= 'ai model profile', null = True)
+    ai_model_profile = models.TextField(
+        verbose_name='ai model profile', null=True)
     ai_usage = models.IntegerField(default=0)
     ai_training_material_count = models.IntegerField(default=0)
+    ai_frozen = models.IntegerField(default=0)
+    
 
 
 class Task(models.Model):

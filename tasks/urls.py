@@ -15,9 +15,10 @@ urlpatterns = [
     path('validate', validate().as_view(), name="validate"),
     path('modelAuthor', modelAuthor().as_view(), name="modelAuthor"),
     path('updatePublished', updatePublished().as_view(), name="updatePublished"),
+    path('unlockedModel', unlockedModel().as_view(), name="unlockedModel"),
     path('incAIMusage', incAIMusage.as_view(), name="incAIMusage"),
     path('getAIMusage', getAIMusage.as_view(), name="getAIMusage"),
-    path('updatemodelImage',updatemodelImage.as_view(), name = "updatemodelImage"),
-    path('trainingMaterialCount', trainingMaterialCount.as_view(),name="trainingMaterialCount")
+    path('updatemodelImage', updatemodelImage.as_view(), name="updatemodelImage"),
+    path('trainingMaterialCount', trainingMaterialCount.as_view(),
+         name="trainingMaterialCount")
 ]
-
