@@ -17,13 +17,16 @@ class AIModel(models.Model):
     # general description about this model for normal users 
     ai_true_description = models.TextField(verbose_name= 'ai introduction', null = True)
     ai_author = models.CharField(max_length=100, null = True)
-    # 0=not_published, 1=published 2=forced_not_published
+    # 0=not_published, 1=published
     ai_published = models.IntegerField(default=0)
     ai_model_profile = models.TextField(verbose_name= 'ai model profile', null = True)
     # how many times is this model used
     ai_usage = models.IntegerField(default=0)
     # how many training materials are passed into this model to train
     ai_training_material_count = models.IntegerField(default=0)
+    # 0=frozen 1=not_frozen 
+    ai_frozen = models.IntegerField(default=0)
+    
 
 
 class Task(models.Model):

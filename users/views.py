@@ -79,7 +79,8 @@ class getUserInfo(APIView):
                 "credit": request.user.credit,
                 "contact_number": request.user.contact_number,
                 "profile_image_uuid": request.user.profile_image_uuid,
-                "user_sing": request.user.user_sing
+                "user_sing": request.user.user_sing,
+                "user_level": request.user.user_level
             }},
             status=HTTP_200_OK
         )
