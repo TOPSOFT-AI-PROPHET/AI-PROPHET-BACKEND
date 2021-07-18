@@ -368,3 +368,20 @@ class personalAImodel(APIView):
         res['message'] = 'get success'
         res['data'] = response
         return JsonResponse(res)
+
+class updateAIM(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(sef,request):
+        id = request.data['ai_id']
+        AIM = AIModel.objects.get(ai_id = id)
+        AIM.ai_name = request.data['ai_name']
+        AIM.ai_credit = request.data['model_price']
+        AIM.ai_description = request.data['model_intro']
+        AIM.ai_type = request.data['model_type']
+        AIM.ai_published = request.data['is_published']
+        AIM.save()
+        return Response(
+            data={"code": 200, "message": "bingo!"},
+            status=HTTP_200_OK
+        )
