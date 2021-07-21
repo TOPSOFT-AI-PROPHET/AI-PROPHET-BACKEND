@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'drf_yasg2',
 ]
 
 AUTH_USER_MODEL = "users.UserProfile"
@@ -88,11 +89,11 @@ WSGI_APPLICATION = 'topsoft_ai_prophet.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'XXXXXXX',
-        'USER': 'XXXXXX',
-        'PASSWORD': 'XXXXXXX',
-        'HOST': 'X.X.X.X',
-        'PORT': 'XXXXX',
+        'NAME': 'X',
+        'USER': 'X',
+        'PASSWORD': 'X',
+        'HOST': 'X',
+        'PORT': 'X',
     }
 }
 

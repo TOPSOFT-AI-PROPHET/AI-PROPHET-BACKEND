@@ -30,6 +30,7 @@ class verifyCharge(APIView):
 class charge(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request):
+        # each charge is new object and will be stored in database, we need to store user_id, method(充值方式)，order
         Transaction.objects.create(user_id = request.user,status = 1,method = request.data['method'],order = request.data['order'],credit =  request.data['amount'])
         request.user.credit = request.user.credit + request.data['amount']
         request.user.save()
@@ -54,7 +55,7 @@ class deduct(APIView):
 class codecharge(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request):
-
+        # verifie whether the cdk is used
         result = Cdklist.objects.filter(cdk = request.data['code'])
         if (len(result) == 0 or result[0].is_used == 1):
             return Response(
@@ -62,7 +63,7 @@ class codecharge(APIView):
             status=HTTP_200_OK
             )
 
-
+        # same as "charge" shown above
         Transaction.objects.create(user_id = request.user,status = 1,method = 1,order = "topup",credit =  result[0].amount)
         result[0].is_used = 1
         request.user.credit = request.user.credit + result[0].amount
@@ -77,7 +78,7 @@ class generatecdk(APIView):
     permission_classes = (IsAdminUser,)
     def post(self, request):
 
-
+        # generate cdk and insert into cdklist
         Cdklist.objects.create(cdk = str(uuid.uuid4()), amount = request.data['amount'])
 
         return Response(

@@ -26,7 +26,6 @@ class AIModel(models.Model):
     ai_training_material_count = models.IntegerField(default=0)
     # 0=frozen 1=not_frozen 
     ai_frozen = models.IntegerField(default=0)
-    # foreign key
     user_id = models.ForeignKey(to=UserProfile, on_delete=models.CASCADE, default='')
     
 

@@ -16,4 +16,5 @@ class UserProfile(AbstractUser):
     profile_image_uuid = models.CharField(blank=True, max_length=255, verbose_name='uuid')
     user_sing = models.CharField(blank=True, max_length=150, verbose_name='nick name')
     contact_number = models.TextField(blank=True, verbose_name='contact number')
+    user_level = models.IntegerField(default=0)
     objects = CustomUserManager()
