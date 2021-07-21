@@ -1,5 +1,6 @@
 from django.contrib.auth.models import Permission
 from django.db import models
+from rest_framework import response
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
@@ -94,7 +95,7 @@ class listAIM(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        AIlist = AIModel.objects.all()
+        AIlist = AIModel.objects.filter(ai_published = 1)
         # page = request.data['page']
         # paginator = Paginator(AIlist, 5)
         response = {}
@@ -361,11 +362,17 @@ class updatePublished(APIView):
     def post(self, request):
         AI_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
         res = {}
-        if AI_instance.ai_frozen == 1:
+        list = [0,1]
+        if AI_instance.ai_frozen == 0:
             res['code'] = 200
             res['message'] = 'The AI model publish data cannot changed'
         else:
             if  AI_instance.ai_published == 1:
+                AI_instance.save()
+                res['code'] = 200
+                res['message'] = 'The AI model publish data update'
+            elif tmp == 2:
+                AI_instance.ai_frozen = 0
                 AI_instance.save()
                 res['code'] = 200
                 res['message'] = 'The AI model publish data update'
@@ -384,5 +391,39 @@ class trainingMaterialCount(APIView):
         amount.save()
         return Response(
             data={"code": 200, "message": "AImodel updated."},
+            status=HTTP_200_OK
+        )
+
+class personalAImodel(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self,request):
+        response = {}
+        user_id = request.data['user_id']
+        author = UserProfile.objects.get(id=user_id)
+        AIlist = author.aimodel_set.all()
+
+        response['list'] = json.loads(serializers.serialize("json",AIlist))
+
+        res = {}
+        res['status'] = 200
+        res['message'] = 'get success'
+        res['data'] = response
+        return JsonResponse(res)
+
+class updateAIM(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(sef,request):
+        id = request.data['ai_id']
+        AIM = AIModel.objects.get(ai_id = id)
+        AIM.ai_name = request.data['ai_name']
+        AIM.ai_credit = request.data['model_price']
+        AIM.ai_description = request.data['model_intro']
+        AIM.ai_type = request.data['model_type']
+        AIM.ai_published = request.data['is_published']
+        AIM.save()
+        return Response(
+            data={"code": 200, "message": "bingo!"},
             status=HTTP_200_OK
         )
