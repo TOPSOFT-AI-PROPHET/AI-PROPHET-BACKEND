@@ -16,7 +16,6 @@ class AIModel(models.Model):
     ai_credit = models.DecimalField(max_digits=20, decimal_places=2, default=0)
     # general description about this model for normal users 
     ai_true_description = models.TextField(verbose_name= 'ai introduction', null = True)
-    ai_author = models.CharField(max_length=100, null = True)
     # 0=not_published, 1=published
     ai_published = models.IntegerField(default=0)
     ai_model_profile = models.TextField(verbose_name= 'ai model profile', null = True)
@@ -26,7 +25,10 @@ class AIModel(models.Model):
     ai_training_material_count = models.IntegerField(default=0)
     # 0=frozen 1=not_frozen 
     ai_frozen = models.IntegerField(default=0)
+    # this is the unit of ai model output
     ai_output_unit = models.TextField(verbose_name='ai output unit')
+    # user_id foreign key
+    user_id = models.ForeignKey(to=UserProfile, on_delete=models.CASCADE, default='')
     
 
 
