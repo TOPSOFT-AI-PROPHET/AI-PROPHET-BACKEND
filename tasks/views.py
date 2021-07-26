@@ -70,7 +70,7 @@ class newTask(APIView):
         ai_id = request.data['ai_id']
         description = request.data['description']
         # if you are confused just think in this way: ai_id_id = ai_id and user_id_id = user_id
-        Task.objects.create(user_id_id = user_id.id, ai_id_id = ai_id, description = description)
+        Task.objects.create(user_id = user_id.id, ai_id = ai_id, description = description)
         return Response(
             data={"code": 200, "message": "Bingo!", }
         )
