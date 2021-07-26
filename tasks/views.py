@@ -362,12 +362,14 @@ class updatePublished(APIView):
     def post(self, request):
         AI_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
         res = {}
+        tmp = request.data['publish']
         list = [0,1]
         if AI_instance.ai_frozen == 0:
             res['code'] = 200
             res['message'] = 'The AI model publish data cannot changed'
         else:
-            if  AI_instance.ai_published == 1:
+            if  tmp in list:
+                AI_instance.ai_published = tmp
                 AI_instance.save()
                 res['code'] = 200
                 res['message'] = 'The AI model publish data update'

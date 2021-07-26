@@ -29,6 +29,8 @@ class AIModel(models.Model):
     ai_output_unit = models.TextField(verbose_name='ai output unit')
     # user_id foreign key
     user_id = models.ForeignKey(to=UserProfile, on_delete=models.CASCADE, default='')
+    #address of dataset
+    ai_training_material = models.TextField(verbose_name='ai training material', null = True)
     
 
 

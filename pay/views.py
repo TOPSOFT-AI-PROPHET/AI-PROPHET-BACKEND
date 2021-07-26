@@ -1,3 +1,4 @@
+from django.http.response import JsonResponse
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
@@ -14,12 +15,6 @@ class createCharge(APIView):
     def post(self, request):
         pass # TODO
 
-# 充值历史
-class listCharge(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        pass # TODO
 
 # 验证充值
 class verifyCharge(APIView):
@@ -31,7 +26,7 @@ class charge(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request):
         # each charge is new object and will be stored in database, we need to store user_id, method(充值方式)，order
-        Transaction.objects.create(user_id = request.user,status = 1,method = request.data['method'],order = request.data['order'],credit =  request.data['amount'])
+        Transaction.objects.create(user_id = request.user,status = 1,method = 'charge',order = request.data['order'],credit =  request.data['amount'])
         request.user.credit = request.user.credit + request.data['amount']
         request.user.save()
         return Response(
@@ -43,7 +38,7 @@ class charge(APIView):
 class deduct(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request):
-        Transaction.objects.create(user_id = request.user,status = 1,method = request.data['method'],order = request.data['order'],credit =  request.data['amount'])
+        Transaction.objects.create(user_id = request.user,status = 1,method = 'deduction',order = request.data['order'],credit =  request.data['amount'])
         request.user.credit = request.user.credit - request.data['amount']
         request.user.save()
         return Response(
@@ -64,7 +59,7 @@ class codecharge(APIView):
             )
 
         # same as "charge" shown above
-        Transaction.objects.create(user_id = request.user,status = 1,method = 1,order = "topup",credit =  result[0].amount)
+        Transaction.objects.create(user_id = request.user,status = 1,method = 'charge',order = "topup",credit =  result[0].amount)
         result[0].is_used = 1
         request.user.credit = request.user.credit + result[0].amount
         result[0].save()
@@ -85,3 +80,18 @@ class generatecdk(APIView):
             data={"code": 200, "message": "Success!"},
             status=HTTP_200_OK
         )
+
+class PersonalTrans(APIView):
+    permission_classes = (IsAuthenticated,)
+    
+    def get(self, request):
+        id = request.data['user_id']
+        response = {}
+        Translist = Transaction.objects.filter(user_id = id)
+        response['list'] = json.loads(serializers.serialize("json",Translist))
+
+        res = {}
+        res['status'] = 200
+        res['message'] = 'get success'
+        res['data'] = response
+        return JsonResponse(res)
