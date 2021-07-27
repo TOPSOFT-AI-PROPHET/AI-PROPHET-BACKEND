@@ -255,27 +255,35 @@ class details(APIView):
 
     def post(self, request):
 
-        task_id = request.data['task_id']
-        task_instance = Task.objects.get(task_id=task_id)
-        ai_instance = AIModel.objects.get(ai_id=task_instance.ai_id.ai_id)
-        Task_description = task_instance.description
-        ai_json = json.loads(task_instance.ai_json)
-        ai_url = task_instance.ai_id.ai_url
-        ai_result = task_instance.ai_result
-        status = task_instance.status
-        time_start = task_instance.time_start
-        ai_credit = task_instance.ai_id.ai_credit
-        ai_params = []
-        sourcedata = json.loads(ai_instance.ai_description)
-
-        for i in range(sourcedata["total_param"]):
-
-            ai_params.append({"para_name":sourcedata["details"][i]["name"],"para_value":ai_json[i][str(i)]})
-
-        return Response(
-            data={"code": 200, "description": str(Task_description), "ai_json": [ai_json], "ai_url": str(ai_url),
-                  "ai_result": str(ai_result), "status": status, "time_start": time_start, "cost": int(ai_credit), "ai_params": ai_params}
-        )
+        AI_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
+        res = {}
+        if AI_instance.ai_frozen == 0:
+            res['code'] = 200
+            res['message'] = 'get success'
+            name = AI_instance.ai_name
+            description = AI_instance.ai_description
+            true_description = AI_instance.ai_true_description
+            credit = AI_instance.ai_credit
+            usage = AI_instance.ai_usage
+            author = AI_instance.user_id
+            published_date = AI_instance.time_start
+            algorithm_type = AI_instance.ai_type
+            training_material_count = AI_instance.ai_training_material_count
+            output_unit = AI_instance.ai_output_unit
+            res['name'] = name
+            res['description'] = description
+            res['true_description'] = true_description
+            res['credit'] = credit
+            res['usage'] = usage
+            res['author'] = author
+            res['published_date'] = published_date
+            res['algorithm_type'] = algorithm_type
+            res['training_material_count'] = training_material_count
+            res['output_unit'] = output_unit
+        else:
+            res["code"] = 404
+            res['message'] = 'cannot find the page'
+        return JsonResponse(res)
 
 # return model author 
 class modelAuthor(APIView):
@@ -400,16 +408,15 @@ class personalAImodel(APIView):
     def post(self,request):
         response = {}
         user_id = request.data['user_id']
-        author = UserProfile.objects.get(id=user_id)
-        AIlist = author.aimodel_set.all()
-
-        response['list'] = json.loads(serializers.serialize("json",AIlist))
-
+        author = UserProfile.objects.get(id = user_id)
         res = {}
-        res['status'] = 200
+        res['code'] = 200
         res['message'] = 'get success'
+        AIlist = author.filter(ai_frozen=1)
+        response['list'] = json.loads(serializers.serialize("json", AIlist))
         res['data'] = response
         return JsonResponse(res)
+
 
 class updateAIM(APIView):
     permission_classes = (IsAuthenticated,)
