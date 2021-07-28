@@ -34,7 +34,7 @@ class getTaskList(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        myTask = Task.objects.filter(user_id=request.user, is_delete=0)
+        myTask = Task.objects.filter(user_id_id=request.user, is_delete=0)
         page = request.data['page']
         paginator = Paginator(myTask, 5)
         response = {}
@@ -66,11 +66,10 @@ class newTask(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        user_id = request.user
+        user = request.user
         ai_id = request.data['ai_id']
         description = request.data['description']
-        # if you are confused just think in this way: ai_id_id = ai_id and user_id_id = user_id
-        Task.objects.create(user_id = user_id.id, ai_id = ai_id, description = description)
+        Task.objects.create(user_id_id = user.id, ai_id_id = ai_id, description = description)
         return Response(
             data={"code": 200, "message": "Bingo!", }
         )
@@ -82,7 +81,7 @@ class delTask(APIView):
 
     def post(self, request):
         # we use logical deletion 
-        Task.objects.filter(user_id = request.user, task_id = request.data["task_id"]).update(is_delete = 1)
+        Task.objects.filter(user_id_id = request.user, task_id = request.data["task_id"]).update(is_delete = 1)
         return Response(
             data={"code": 200, "message": "Success!"},
             status=HTTP_200_OK
@@ -171,9 +170,9 @@ class numTask(APIView):
 
     def post(self, request):
         Task_num = Task.objects.filter(
-            is_delete=0, user_id=request.user.id).aggregate(Task_num=Count("task_id"))
+            is_delete=0, user_id_id=request.user.id).aggregate(Task_num=Count("task_id"))
         Task_finish = Task.objects.filter(
-            status=100, is_delete=0, user_id=request.user.id).aggregate(Task_finish=Count("task_id"))
+            status=100, is_delete=0, user_id_id=request.user.id).aggregate(Task_finish=Count("task_id"))
 
         return Response(
             data={"code": 200, "data": {"num_of_task": str(

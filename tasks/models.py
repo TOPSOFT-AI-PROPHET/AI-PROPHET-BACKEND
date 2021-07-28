@@ -36,7 +36,8 @@ class AIModel(models.Model):
 
 class Task(models.Model):
     task_id = models.BigAutoField(primary_key=True)
-    ai_id = models.ForeignKey(AIModel, on_delete=models.CASCADE)
+    ai_id = models.ForeignKey(AIModel, on_delete=models.CASCADE, null=True)
+    user_id = models.ForeignKey(to=UserProfile, on_delete=models.CASCADE, null=True)
     # kinds of training materials
     ai_json = models.TextField(verbose_name='ai req json data', blank=True)
     ai_result = models.TextField(
