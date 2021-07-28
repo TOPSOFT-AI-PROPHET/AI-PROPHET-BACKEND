@@ -8,7 +8,7 @@ class Transaction(models.Model):
     user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     uuid = models.UUIDField(default=uuid.uuid4) # for cdk
     status = models.IntegerField(default=0) # 充值结果
-    method = models.IntegerField(default=0) # 充值方式
+    method = models.TextField(verbose_name='method', null=True) # 充值方式
     order = models.CharField(max_length=1025) # 充值的备注？
     credit = models.DecimalField(max_digits=20, decimal_places=2)
     create_time = models.DateTimeField(default=timezone.now)
