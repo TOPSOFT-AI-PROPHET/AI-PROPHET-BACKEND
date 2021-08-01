@@ -249,7 +249,7 @@ class prediction(APIView):
         )
 
 # return ai_model details 
-class details(APIView):
+class AImodelDetails(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
@@ -260,8 +260,7 @@ class details(APIView):
         if AI_instance.ai_frozen == 0:
             res['code'] = 200
             res['message'] = 'get success'
-            AIlist = AI_instance.objects.filter(ai_frozen=0)
-            response['list'] = json.loads(serializers.serialize("json", AIlist))
+            response = json.loads(serializers.serialize("json", [AI_instance]))
             res['data'] = response
         else:
             res["code"] = 404
