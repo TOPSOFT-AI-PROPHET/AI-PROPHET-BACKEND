@@ -19,6 +19,9 @@ urlpatterns = [
     path('incAIMusage', incAIMusage.as_view(), name="incAIMusage"),
     path('getAIMusage', getAIMusage.as_view(), name="getAIMusage"),
     path('updatemodelImage',updatemodelImage.as_view(), name = "updatemodelImage"),
-    path('trainingMaterialCount', trainingMaterialCount.as_view(),name="trainingMaterialCount"),
-    path('personalAImodel', personalAImodel.as_view(),name="personalAImodel"),
-    path('updateAIM', updateAIM.as_view(),name='updateAIM'),]
+    path('trainingMaterialCount', trainingMaterialCount.as_view(), name="trainingMaterialCount"),
+    path('personalAImodel', personalAImodel.as_view(), name="personalAImodel"),
+    path('updateAIM', updateAIM.as_view(), name='updateAIM'),
+    path('personalAImodelNum', personalAImodelNum.as_view(), name="personalAImodelNum"),
+    path('personalAImodelUsage', personalAImodelUsage.as_view(), name="personalAImodelUsage"),
+    ]
