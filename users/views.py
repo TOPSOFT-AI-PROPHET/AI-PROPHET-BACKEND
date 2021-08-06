@@ -107,7 +107,8 @@ class register(APIView):
             username = request.data["username"],
             email = request.data["email"],
             password = make_password(request.data["password"]),
-            is_active = True
+            is_active = True,
+            credit = 5
         )
         return Response(
             data={"code": 200, "message": "Registed!"},
@@ -133,5 +134,18 @@ class changePasswd(APIView):
             request.user.save()
             return Response(
                 data={"code": 200, "message": "User password is changed"},
+                status=HTTP_200_OK
+            )
+
+
+class returnUsrID(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(sef, request):
+
+            return Response(
+                data={"code": 200, "message": "Bingo!", "data": {
+                    "user_id": request.user.user_id,
+                }},
                 status=HTTP_200_OK
             )

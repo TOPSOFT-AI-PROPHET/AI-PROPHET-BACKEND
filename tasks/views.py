@@ -250,32 +250,23 @@ class prediction(APIView):
         )
 
 # return ai_model details 
-class details(APIView):
+class AImodelDetails(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
 
-        task_id = request.data['task_id']
-        task_instance = Task.objects.get(task_id=task_id)
-        ai_instance = AIModel.objects.get(ai_id=task_instance.ai_id.ai_id)
-        Task_description = task_instance.description
-        ai_json = json.loads(task_instance.ai_json)
-        ai_url = task_instance.ai_id.ai_url
-        ai_result = task_instance.ai_result
-        status = task_instance.status
-        time_start = task_instance.time_start
-        ai_credit = task_instance.ai_id.ai_credit
-        ai_params = []
-        sourcedata = json.loads(ai_instance.ai_description)
-
-        for i in range(sourcedata["total_param"]):
-
-            ai_params.append({"para_name":sourcedata["details"][i]["name"],"para_value":ai_json[i][str(i)]})
-
-        return Response(
-            data={"code": 200, "description": str(Task_description), "ai_json": [ai_json], "ai_url": str(ai_url),
-                  "ai_result": str(ai_result), "status": status, "time_start": time_start, "cost": int(ai_credit), "ai_params": ai_params}
-        )
+        AI_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
+        res = {}
+        
+        if AI_instance.ai_frozen == 0:
+            res['code'] = 200
+            res['message'] = 'get success'
+            response = json.loads(serializers.serialize("json", [AI_instance]))
+            res['data'] = response
+        else:
+            res["code"] = 404
+            res['message'] = 'cannot find the page'
+        return JsonResponse(res)
 
 # return model author 
 class modelAuthor(APIView):
@@ -403,15 +394,14 @@ class personalAImodel(APIView):
         response = {}
         user_id = request.data['user_id']
         author = UserProfile.objects.get(id=user_id)
-        AIlist = author.aimodel_set.all()
-
-        response['list'] = json.loads(serializers.serialize("json",AIlist))
-
+        AIlist = author.aimodel_set.filter(ai_frozen=0)
         res = {}
-        res['status'] = 200
+        res['code'] = 200
         res['message'] = 'get success'
+        response['list'] = json.loads(serializers.serialize("json", AIlist))
         res['data'] = response
         return JsonResponse(res)
+
 
 class updateAIM(APIView):
     permission_classes = (IsAuthenticated,)
