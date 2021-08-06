@@ -31,6 +31,7 @@ class AIModel(models.Model):
     user_id = models.ForeignKey(to=UserProfile, on_delete=models.CASCADE, default='')
     #address of dataset
     ai_training_material = models.TextField(verbose_name='ai training material', null = True)
+    ai_training_duration = models.IntegerField(default=0)
     
 
 

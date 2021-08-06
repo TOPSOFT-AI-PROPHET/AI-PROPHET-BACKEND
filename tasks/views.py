@@ -99,21 +99,6 @@ class listAIM(APIView):
         # page = request.data['page']
         # paginator = Paginator(AIlist, 5)
         response = {}
-        # response['totalCount'] = paginator.count
-        # response['numPerPage'] = 5
-        # response['totalPage'] = paginator.num_pages
-        # try:
-        #     tasks = paginator.page(page)
-        # except PageNotAnInteger:
-        #     tasks = paginator.page(1)
-        # except InvalidPage:
-        #     resp = {}
-        #     resp["code"] = 404
-        #     resp['message'] = 'cannot find the page'
-        #     return JsonResponse(resp)
-        # except EmptyPage:
-        #     tasks = paginator.page(paginator.num_pages)
-        # response['pageNum'] = users.number
         response['list'] = json.loads(serializers.serialize("json", AIlist))
 
         res = {}
