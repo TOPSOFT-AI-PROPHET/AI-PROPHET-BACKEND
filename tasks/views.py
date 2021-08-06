@@ -26,6 +26,7 @@ import logging
 from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 from .models import UserProfile
+from django.db.models import Sum
 
 # 获取任务列表
 
@@ -405,7 +406,7 @@ class personalAImodel(APIView):
 class updateAIM(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def post(sef,request):
+    def post(self,request):
         id = request.data['ai_id']
         AIM = AIModel.objects.get(ai_id = id)
         AIM.ai_name = request.data['ai_name']
@@ -419,5 +420,29 @@ class updateAIM(APIView):
             status=HTTP_200_OK
         )
 
+#return the personal AImodel number
+class personalAImodelNum(APIView):
+    permission_classes = (IsAuthenticated,)
 
+    def get(self,request):
+        id = request.data['user_id']
+        AIMNum = AIModel.objects.filter(user_id = id).aggregate(ai_model_num=Count("ai_id"))
+        res = {}
+        res['status'] = 200
+        res['message'] = 'get success'
+        res['ai_model_usage'] = str(AIMNum)
+        return JsonResponse(res)
 
+#return the personal AImodel usage
+class personalAImodelUsage(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self,request):
+        id = request.data['user_id']
+        AIMUse = AIModel.objects.filter(user_id = id).aggregate(ai_model_usage=Sum('ai_usage'))
+        res = {}
+        res['status'] = 200
+        res['message'] = 'get success'
+        res['ai_model_usage'] = str(AIMUse)
+        return JsonResponse(res)
+        
