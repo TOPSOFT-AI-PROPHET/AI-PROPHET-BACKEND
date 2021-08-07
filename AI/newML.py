@@ -1,9 +1,10 @@
 """
 The task of the code is to apply random forest algorithm on the train4.csv data and give the predictions on demanded inputs
 """
+
 import numpy as np
 import pandas as pd
-import joblib
+
 from sklearn.model_selection import train_test_split
 # from sklearn.model_selection import RandomizedSearchCV
 from sklearn.model_selection import GridSearchCV
@@ -11,6 +12,8 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestRegressor
 import time
 
+def test_func():
+    print("Hello")
 
 # def Data_split(data:str,ratio:float, target:str):
 #     # Import the dataset
@@ -22,7 +25,7 @@ import time
 #     #data_split
 #     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=ratio, random_state=1)
 #     return X_train, X_test, y_train, y_test
-def Data_split(data:str,ratio:float):
+def Data_split(data,ratio:float):
     # Import the dataset
     # 287 data with 23 features and label named "weight"
     df = pd.read_csv(data)
@@ -59,7 +62,7 @@ def my_Cross_Validation(X_train, y_train):
                'max_depth': max_depth,
                'bootstrap': bootstrap}
     #n_iter trades off runtime vs quality of the solution
-    rf_random = GridSearchCV(estimator = model, param_grid = random_grid, cv = cv, verbose=0, n_jobs = -1)
+    rf_random = GridSearchCV(estimator = model, param_grid = random_grid, cv = cv, verbose=2, n_jobs = -1)
     # Fit the random search model on training data set and print best parameters
     # it is refitted to whole train_data set by default
     rf_random.fit(X_train, y_train)
@@ -81,7 +84,7 @@ def my_Cross_Validation(X_train, y_train):
 
 
 #whole composite of traditional ML
-def Machine_Learning(data:str,ratio:float, model_name:str):
+def Machine_Learning(data:str,ratio:float):
     # starting time
     start = time.time()
     X_train, X_test, y_train, y_test = Data_split(data, ratio)
@@ -93,7 +96,7 @@ def Machine_Learning(data:str,ratio:float, model_name:str):
     total_time = end - start
     # print("Your total training time is:"+str(total_time)+"sec\n" ,"Your best params are:",best_rf_params)
     #save model
-    joblib.dump(best_rf_estimator, model_name)
+    return best_rf_estimator
 
 #predict with given model
 def Model_prediction(input_ls:list, model_name:str):
@@ -103,6 +106,6 @@ def Model_prediction(input_ls:list, model_name:str):
     result = model.predict(input_ls.reshape(1,-1))
     # print("Your prediction is:"+str(result[0]))
     return result
-Machine_Learning("train4.csv", 0.2,"rf01")
-Model_prediction(np.ones(23),"rf01")
+
+
 

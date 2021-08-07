@@ -24,4 +24,5 @@ urlpatterns = [
     path('updateAIM', updateAIM.as_view(), name='updateAIM'),
     path('personalAImodelNum', personalAImodelNum.as_view(), name="personalAImodelNum"),
     path('personalAImodelUsage', personalAImodelUsage.as_view(), name="personalAImodelUsage"),
+    path('train', train.as_view(), name="train"),
     ]

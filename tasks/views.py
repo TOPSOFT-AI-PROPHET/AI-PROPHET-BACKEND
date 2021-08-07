@@ -28,9 +28,48 @@ from qcloud_cos import CosS3Client
 from .models import UserProfile
 from django.db.models import Sum
 
+from AI.newML import Data_split
+from AI.newML import my_Cross_Validation
+from AI.newML import Machine_Learning
+
+from utils.cos import write_model
+
+
+
+# 在线训练 online-training
+class train(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+
+        dataset_file = request.data['dataset']
+
+        uuid_namespace = uuid.uuid3(uuid.NAMESPACE_OID,str(UserProfile.objects.get(id = request.user.id).id))
+        uuid_str = str(uuid.uuid3(uuid_namespace, str(uuid.uuid4())))
+
+        model = Machine_Learning(dataset_file, 0.2)
+
+        write_model(uuid_str,model)
+
+
+        res = {}
+        res['status'] = 1
+        res['message'] = 'successs'
+        res['data'] = response
+        return JsonResponse(res)
+
+
+        # TODO: Train model
+        
+
+        # Upload model
+        
+        # Save model
+        # Update task/user?
+        
+
+
 # 获取任务列表
-
-
 class getTaskList(APIView):
     permission_classes = (IsAuthenticated,)
 
