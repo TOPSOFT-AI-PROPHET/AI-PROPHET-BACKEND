@@ -317,14 +317,17 @@ class modelAuthor(APIView):
 
         AI_model = AIModel.objects.get(ai_id=request.data['ai_id'])
         res = {}
-        author_id = AI_model.user_id_id
+        user_id = AI_model.user_id_id
         author = UserProfile.objects.get(id=author_id)
         author_name = author.username
+        author_profile_uuid = author.profile_image_uuid
         publish = AI_model.ai_published
         res['code'] = 200
         res['message'] = 'get success'
         res['author'] = author_name
         res['publish'] = publish
+        res['user_id'] = user_id
+        res['uuid'] = author_profile_uuid
         return JsonResponse(res)
 
 # we need to connect with cos service and pass in with uuid encrypted information
@@ -467,7 +470,7 @@ class updateAIM(APIView):
 class personalAImodelNum(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get(self,request):
+    def post(self,request):
         id = request.data['user_id']
         AIMNum = AIModel.objects.filter(user_id = id).aggregate(ai_model_num=Count("ai_id"))
         res = {}
@@ -480,7 +483,7 @@ class personalAImodelNum(APIView):
 class personalAImodelUsage(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get(self,request):
+    def post(self,request):
         id = request.data['user_id']
         AIMUse = AIModel.objects.filter(user_id = id).aggregate(ai_model_usage=Sum('ai_usage'))
         res = {}
