@@ -42,7 +42,7 @@ class train(APIView):
 
     def post(self, request):
 
-        ai_name = request.data["ai_name"]
+        ainame = request.data["ai_name"]
         ai_credit = request.data["ai_price"]
         ai_true_description = request.data["ai_ture_desc"]
         ai_description = request.data["ai_desc"]
@@ -64,8 +64,8 @@ class train(APIView):
             ai_published = 0
             
         # update database
-        AIModel.objects.create(ai_name=ai_name, ai_url=uuid_str, ai_status=100, ai_true_description = ai_true_description, ai_published = ai_published 
-                               ai_description=ai_description, ai_type=ai_type, ai_credit=ai_credit, ai_output_unit = ai_output_unit, user_id = id = request.user.id)
+        AIModel.objects.create(ai_name=ainame, ai_url=uuid_str, ai_status=100, ai_true_description = ai_true_description, ai_published = ai_published ,
+                               ai_description=ai_description, ai_type=ai_type, ai_credit=ai_credit,ai_output_unit = ai_output_unit, user_id = request.user)
 
         res = {}
         res['status'] = 1
