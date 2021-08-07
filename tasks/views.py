@@ -419,5 +419,28 @@ class updateAIM(APIView):
             status=HTTP_200_OK
         )
 
+#增加AI模型访问次数 increase AIM usage
+class increaseAIMusage(APIView):
+    Permission_classes = (IsAuthenticated,)
 
+    def post(self, request):
+        AI_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
+        AI_instance.ai_AIM_usage += 1
+        AI_instance.save()
+        return Response(
+            data={"code": 200, "message": "AImodel updated."},
+            status=HTTP_200_OK
+        )
 
+#获取AI模型访问次数 get AIM usage
+class getAIMuage(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        AI_model = AIModel.objects.get(ai_id=request.data['ai_id'])
+        res = {}
+        ai_AIM_usage = AI_model.ai_AIM_usage
+        res['code'] = 200
+        res['message'] = 'get success'
+        res['AIM_usage'] = ai_AIM_usage
+        return JsonResponse(res)

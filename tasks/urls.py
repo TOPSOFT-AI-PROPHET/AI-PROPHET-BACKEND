@@ -21,5 +21,7 @@ urlpatterns = [
     path('updatemodelImage',updatemodelImage.as_view(), name = "updatemodelImage"),
     path('trainingMaterialCount', trainingMaterialCount.as_view(),name="trainingMaterialCount"),
     path('personalAImodel', personalAImodel.as_view(),name="personalAImodel"),
-    path('updateAIM', updateAIM.as_view(),name='updateAIM')
+    path('updateAIM', updateAIM.as_view(),name='updateAIM'),
+    path('increaseAIMusage', increaseAIMusage.as_view(), name='increaseAIMusage'),
+    path('getAIMuage', getAIMuage.as_view(), name='getAIMuage'),
 ]
