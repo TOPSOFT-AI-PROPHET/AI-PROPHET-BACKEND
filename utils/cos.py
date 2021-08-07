@@ -1,9 +1,9 @@
 import os
-import joblib
-from io import BytesIO
 import tempfile
-from qcloud_cos import CosConfig
-from qcloud_cos import CosS3Client
+from io import BytesIO
+
+import joblib
+from qcloud_cos import CosConfig, CosS3Client
 
 secret_id = os.getenv("COS_SECRET_ID")
 secret_key = os.getenv("COS_SECRET_KEY")
