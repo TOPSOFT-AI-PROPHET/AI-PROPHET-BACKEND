@@ -32,7 +32,7 @@ from AI.newML import Data_split
 from AI.newML import my_Cross_Validation
 from AI.newML import Machine_Learning
 
-from utils.cos import write_model
+from utils.cos import write_model, read_model
 
 
 
@@ -263,30 +263,38 @@ class prediction(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        model_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
-        model = load(model_instance.ai_url)
-        parameters = [[]]
-        ai_json = []
-        for i in range(request.data['total_para']):
-            parameters[0].append(int(request.data['data'][i]['value']))
-            ai_json.append({str(i): int(request.data['data'][i]['value'])})
-        parameters = np.array(parameters)
-        result = model.predict(parameters)
+        # Get model data from DB
+        model_data = AIModel.objects.get(ai_id=request.data["ai_id"])
 
-        user_id = request.user
-        ai_id = request.data['ai_id']
-        Task.objects.create(user_id_id=user_id.id, ai_id_id=ai_id, ai_name=model_instance.ai_name, ai_json=json.dumps(
-            ai_json), ai_result=int(result[0]), status=100, description="Under development")
+        # Get model instance from S3 bucket
+        try:
+            model = read_model(model_data.ai_url)
+        except:
+            return Response({"message": "That model does not exist"}, status=404)
 
-        #扣费
-        Transaction.objects.create(user_id=request.user, status=1, method=1,
-                                   order=model_instance.ai_name, credit=model_instance.ai_credit)
-        request.user.credit = request.user.credit - model_instance.ai_credit
+        # Predict with model
+        sample = request.data["dataset"]
+        pred = model.predict(np.array(sample).reshape(1, -1))[0]
+
+        # Create task
+        user = request.user
+        Task.objects.create(
+            user_id_id=user.id,
+            ai_id=model_data,
+            ai_name=model_data.ai_name,
+            ai_json=json.dumps(sample),
+            ai_result=pred,
+        )
+
+        # Create transactiosn and update user credit
+        Transaction.objects.create(
+            user_id=request.user, status=1, method=1, order=model_data.ai_name, credit=model_data.ai_credit
+        )
+        request.user.credit += model_data.ai_credit
         request.user.save()
 
-        return Response(
-            data={"code": 200, "message": "Bingo!", }
-        )
+        return Response({"message": "Success"})
+
 
 # return ai_model details 
 class modeldetail(APIView):
