@@ -42,15 +42,30 @@ class train(APIView):
 
     def post(self, request):
 
+        ai_name = request.data["ai_name"]
+        ai_credit = request.data["ai_price"]
+        ai_true_description = request.data["ai_ture_desc"]
+        ai_description = request.data["ai_desc"]
+        ai_output_unit = request.data["ai_opUnit"] 
+        ai_type = request.data["ai_type"]
+        whether_auto_publish = request.data["auto_active"]
         dataset_file = request.data['dataset']
 
         uuid_namespace = uuid.uuid3(uuid.NAMESPACE_OID,str(UserProfile.objects.get(id = request.user.id).id))
-        uuid_str = str(uuid.uuid3(uuid_namespace, str(uuid.uuid4())))
+        uuid_str = str(uuid.uuid3(uuid_namespace, str(uuid.uuid4()))) + ".joblib"
 
         model = Machine_Learning(dataset_file, 0.2)
 
-        write_model(uuid_str,model)
+        response = write_model(uuid_str,model)
 
+        if (whether_auto_publish == 1):
+            ai_published = 1
+        else:
+            ai_published = 0
+            
+        # update database
+        AIModel.objects.create(ai_name=ai_name, ai_url=uuid_str, ai_status=100, ai_true_description = ai_true_description, ai_published = ai_published 
+                               ai_description=ai_description, ai_type=ai_type, ai_credit=ai_credit, ai_output_unit = ai_output_unit, user_id = id = request.user.id)
 
         res = {}
         res['status'] = 1

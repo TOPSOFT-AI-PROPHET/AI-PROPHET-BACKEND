@@ -81,7 +81,7 @@ class generatecdk(APIView):
             status=HTTP_200_OK
         )
 
-class PersonalTrans(APIView):
+class personalTrans(APIView):
     permission_classes = (IsAuthenticated,)
     
     def get(self, request):

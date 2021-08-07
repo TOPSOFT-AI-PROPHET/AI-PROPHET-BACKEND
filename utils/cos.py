@@ -19,7 +19,7 @@ def write_model(key, model):
     with tempfile.TemporaryFile() as fp:
         joblib.dump(model, fp)
         fp.seek(0)
-        response = client.put_object(Bucket=bucket, Body=fp.read(), Key=key)
+        response = client.put_object(Bucket=bucket, Body=fp, Key=key, StorageClass='STANDARD',EnableMD5=False)
         return response
 
 
