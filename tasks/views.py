@@ -202,8 +202,25 @@ class validate(APIView):
             data={"code": 200},
             status=HTTP_200_OK
         )
+# taskdetails
+class details(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):
+        task_id = request.data['task_id']
+        task_instance = Task.objects.get(task_id = task_id)
+        ai_instance = AIModel.objects.get(ai_id = task_instance.ai_id.ai_id)
+        Task_description=task_instance.description
+        ai_json=json.loads(task_instance.ai_json)
+        ai_url=task_instance.ai_id.ai_url
+        ai_result=task_instance.ai_result
+        status=task_instance.status
+        time_start=task_instance.time_start
+        ai_credit=task_instance.ai_id.ai_credit
+        ai_params=[]
+        sourcedata = json.loads(ai_instance.ai_description)
+        for i in range(sourcedata["total_param"]):
+            ai_params.append({"para_name":sourcedata["details"][i]["name"],"para_value":ai_json[i][str(i)]})
 
-        
 # 统计现有任务数量和已完成任务数量
 class numTask(APIView):
     permission_classes = (IsAuthenticated,)
@@ -317,16 +334,18 @@ class modelAuthor(APIView):
 
         AI_model = AIModel.objects.get(ai_id=request.data['ai_id'])
         res = {}
-        user_id = AI_model.user_id_id
+        author_id = AI_model.user_id_id
         author = UserProfile.objects.get(id=author_id)
         author_name = author.username
         author_profile_uuid = author.profile_image_uuid
+        author_singnature = author.user_sing
         publish = AI_model.ai_published
         res['code'] = 200
         res['message'] = 'get success'
         res['author'] = author_name
         res['publish'] = publish
-        res['user_id'] = user_id
+        res['user_id'] = author_id
+        res['user_singnature'] = author_singnature
         res['uuid'] = author_profile_uuid
         return JsonResponse(res)
 
@@ -486,6 +505,7 @@ class personalAImodelUsage(APIView):
     def post(self,request):
         id = request.data['user_id']
         AIMUse = AIModel.objects.filter(user_id = id).aggregate(ai_model_usage=Sum('ai_usage'))
+        AIMUse = AIMUse['ai_model_usage']
         res = {}
         res['status'] = 200
         res['message'] = 'get success'
