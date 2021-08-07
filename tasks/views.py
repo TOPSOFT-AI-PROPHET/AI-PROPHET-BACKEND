@@ -235,7 +235,7 @@ class prediction(APIView):
         )
 
 # return ai_model details 
-class AImodelDetails(APIView):
+class modeldetail(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
@@ -243,14 +243,16 @@ class AImodelDetails(APIView):
         AI_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
         res = {}
         
-        if AI_instance.ai_frozen == 0:
+        if AI_instance.ai_frozen == 1:
             res['code'] = 200
             res['message'] = 'get success'
             response = json.loads(serializers.serialize("json", [AI_instance]))
             res['data'] = response
         else:
+            # To do
+            # Discuss with FE about the exception handler
             res["code"] = 404
-            res['message'] = 'cannot find the page'
+            res['message'] = 'cannot find model_details'
         return JsonResponse(res)
 
 # return model author 
@@ -261,11 +263,13 @@ class modelAuthor(APIView):
 
         AI_model = AIModel.objects.get(ai_id=request.data['ai_id'])
         res = {}
-        author = AI_model.ai_author
+        author_id = AI_model.user_id_id
+        author = UserProfile.objects.get(id=author_id)
+        author_name = author.username
         publish = AI_model.ai_published
         res['code'] = 200
         res['message'] = 'get success'
-        res['author'] = author
+        res['author'] = author_name
         res['publish'] = publish
         return JsonResponse(res)
 
@@ -324,7 +328,7 @@ class unlockedModel(APIView):
 
     def post(self, request):
         AI_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
-        AI_instance.ai_frozen = 0
+        AI_instance.ai_frozen = 1
         AI_instance.save()
         res = {}
         res['code'] = 200
@@ -379,7 +383,7 @@ class personalAImodel(APIView):
         response = {}
         user_id = request.data['user_id']
         author = UserProfile.objects.get(id=user_id)
-        AIlist = author.aimodel_set.filter(ai_frozen=0)
+        AIlist = author.aimodel_set.filter(ai_frozen=1)
         res = {}
         res['code'] = 200
         res['message'] = 'get success'
