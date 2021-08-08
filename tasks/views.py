@@ -34,9 +34,26 @@ from AI.newML import Machine_Learning
 
 from utils.cos import write_model, read_model
 
+from . import tasks
+
+import base64
 
 
-# 在线训练 online-training
+class ttt(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        t_id = tasks.test.delay()
+        res = {}
+        res['status'] = 1
+        res['message'] = 'successs'
+        res['task_id'] = t_id.task_id
+        return JsonResponse(res)
+
+
+
+
+# 异步在线训练 online-training 
 class train(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -50,27 +67,37 @@ class train(APIView):
         ai_type = request.data["ai_type"]
         whether_auto_publish = request.data["auto_active"]
         dataset_file = request.data['dataset']
-
+        
         uuid_namespace = uuid.uuid3(uuid.NAMESPACE_OID,str(UserProfile.objects.get(id = request.user.id).id))
         uuid_str = str(uuid.uuid3(uuid_namespace, str(uuid.uuid4()))) + ".joblib"
 
-        model = Machine_Learning(dataset_file, 0.2)
-
-        response = write_model(uuid_str,model)
+        
 
         if (whether_auto_publish == 1):
             ai_published = 1
         else:
             ai_published = 0
             
+
+
         # update database
-        AIModel.objects.create(ai_name=ainame, ai_url=uuid_str, ai_status=100, ai_true_description = ai_true_description, ai_published = ai_published ,
+        instance = AIModel.objects.create(ai_name=ainame, ai_url=uuid_str, ai_status=0, ai_true_description = ai_true_description, ai_published = ai_published ,
                                ai_description=ai_description, ai_type=ai_type, ai_credit=ai_credit,ai_output_unit = ai_output_unit, user_id = request.user)
+
+
+        dataset_uuid = str(uuid.uuid4()) + ".csv"
+       
+
+        str_file = base64.b64encode(dataset_file.read()).decode("utf-8")
+
+        
+        # 创建新task递交给worker
+        t_id = tasks.ML_Traditional.delay(str_file,uuid_str,instance.ai_id)
 
         res = {}
         res['status'] = 1
         res['message'] = 'successs'
-        res['data'] = response
+        res['task_id'] = t_id.task_id
         return JsonResponse(res)
 
 
