@@ -25,4 +25,5 @@ urlpatterns = [
     path('personalAImodelNum', personalAImodelNum.as_view(), name="personalAImodelNum"),
     path('personalAImodelUsage', personalAImodelUsage.as_view(), name="personalAImodelUsage"),
     path('train', train.as_view(), name="train"),
+    path('ttt', ttt.as_view(), name="ttt"),
     ]
