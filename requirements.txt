@@ -43,3 +43,7 @@ sqlparse==0.4.1
 threadpoolctl==2.1.0
 uritemplate==3.0.1
 urllib3==1.26.4
+cos-python-sdk-v5==1.9.4
+pandas
+celery==4.4
+redis==3.2.0
