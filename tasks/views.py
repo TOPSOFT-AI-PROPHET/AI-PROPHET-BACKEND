@@ -326,7 +326,6 @@ class prediction(APIView):
             for i in range(request.data['total_para']):
                 sample[0].append(int(request.data['data'][i]['value']))
                 ai_json.append({str(i): int(request.data['data'][i]['value'])})
-            sample = np.array(sample)
         except:
             return Response({"message": "Provided data is of an incorrect format"}, status=400)
 
