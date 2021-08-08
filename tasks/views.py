@@ -319,25 +319,35 @@ class prediction(APIView):
         except:
             return Response({"message": "That model does not exist"}, status=404)
 
+        # Create sample from request data
+        try:
+            sample = [[]]
+            ai_json = []
+            for i in range(request.data['total_para']):
+                sample[0].append(int(request.data['data'][i]['value']))
+                ai_json.append({str(i): int(request.data['data'][i]['value'])})
+            sample = np.array(sample)
+        except:
+            return Response({"message": "Provided data is of an incorrect format"}, status=400)
+
         # Predict with model
-        sample = request.data["dataset"]
         pred = model.predict(np.array(sample).reshape(1, -1))[0]
 
         # Create task
-        user = request.user
         Task.objects.create(
-            user_id_id=user.id,
+            user_id_id=request.user.id,
             ai_id=model_data,
             ai_name=model_data.ai_name,
-            ai_json=json.dumps(sample),
+            description=request.data["task_desc"],
+            ai_json=json.dumps(ai_json),
             ai_result=pred,
         )
 
-        # Create transactiosn and update user credit
+        # Create transaction and update user credit
         Transaction.objects.create(
             user_id=request.user, status=1, method=1, order=model_data.ai_name, credit=model_data.ai_credit
         )
-        request.user.credit += model_data.ai_credit
+        request.user.credit -= model_data.ai_credit
         request.user.save()
 
         return Response({"message": "Success"})
