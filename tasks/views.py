@@ -344,7 +344,7 @@ class prediction(APIView):
 
         # Create transaction and update user credit
         Transaction.objects.create(
-            user_id=request.user, status=1, method=1, order=model_data.ai_name, credit=model_data.ai_credit
+            user_id=request.user, status=1, method="deduction", order=model_data.ai_name, credit=model_data.ai_credit
         )
         request.user.credit -= model_data.ai_credit
         request.user.save()
