@@ -1,7 +1,9 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*- celery 配置文件
 from __future__ import absolute_import
 import os
 from celery import Celery
+
+
 
 # 只要是想在自己的脚本中访问Django的数据库等文件就必须配置Django的环境变量
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'topsoft_ai_prophet.settings')

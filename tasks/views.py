@@ -53,7 +53,7 @@ class ttt(APIView):
 
 
 
-# 在线训练 online-training
+# 异步在线训练 online-training 
 class train(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -86,12 +86,12 @@ class train(APIView):
 
 
         dataset_uuid = str(uuid.uuid4()) + ".csv"
-        #write_model(dataset_uuid,dataset_file
+       
 
         str_file = base64.b64encode(dataset_file.read()).decode("utf-8")
 
         
-
+        # 创建新task递交给worker
         t_id = tasks.ML_Traditional.delay(str_file,uuid_str,instance.ai_id)
 
         res = {}
