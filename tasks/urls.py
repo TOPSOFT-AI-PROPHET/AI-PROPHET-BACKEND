@@ -12,6 +12,7 @@ urlpatterns = [
     path('prediction', prediction.as_view(), name="prediction"),
     path('getAIM', getAIM.as_view(), name="getAIM"),
     path('modeldetail', modeldetail.as_view(), name="AImodelDetails"),
+    path('details', details.as_view(), name="details"),
     path('validate', validate().as_view(), name="validate"),
     path('modelAuthor', modelAuthor().as_view(), name="modelAuthor"),
     path('updatePublished', updatePublished().as_view(), name="updatePublished"),
