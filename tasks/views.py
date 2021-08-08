@@ -202,7 +202,7 @@ class validate(APIView):
             data={"code": 200},
             status=HTTP_200_OK
         )
-# taskdetails
+
 class details(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request):
@@ -220,7 +220,10 @@ class details(APIView):
         sourcedata = json.loads(ai_instance.ai_description)
         for i in range(sourcedata["total_param"]):
             ai_params.append({"para_name":sourcedata["details"][i]["name"],"para_value":ai_json[i][str(i)]})
-
+        return Response(
+            data={"code" : 200, "description" : str(Task_description), "ai_json" : [ai_json], "ai_url" : str(ai_url),
+                "ai_result" : str(ai_result), "status" : status, "time_start" : time_start, "cost" : int(ai_credit), "ai_params" : ai_params}
+        ) 
 # 统计现有任务数量和已完成任务数量
 class numTask(APIView):
     permission_classes = (IsAuthenticated,)
