@@ -11,7 +11,8 @@ urlpatterns = [
     path('numTask', numTask.as_view(), name="numTask"),
     path('prediction', prediction.as_view(), name="prediction"),
     path('getAIM', getAIM.as_view(), name="getAIM"),
-    path('AImodelDetails', AImodelDetails.as_view(), name="AImodelDetails"),
+    path('modeldetail', modeldetail.as_view(), name="AImodelDetails"),
+    path('details', details.as_view(), name="details"),
     path('validate', validate().as_view(), name="validate"),
     path('modelAuthor', modelAuthor().as_view(), name="modelAuthor"),
     path('updatePublished', updatePublished().as_view(), name="updatePublished"),
@@ -19,9 +20,13 @@ urlpatterns = [
     path('incAIMusage', incAIMusage.as_view(), name="incAIMusage"),
     path('getAIMusage', getAIMusage.as_view(), name="getAIMusage"),
     path('updatemodelImage',updatemodelImage.as_view(), name = "updatemodelImage"),
-    path('trainingMaterialCount', trainingMaterialCount.as_view(),name="trainingMaterialCount"),
-    path('personalAImodel', personalAImodel.as_view(),name="personalAImodel"),
-    path('updateAIM', updateAIM.as_view(),name='updateAIM'),
     path('increaseAIMusage', increaseAIMusage.as_view(), name='increaseAIMusage'),
     path('getAIMuage', getAIMuage.as_view(), name='getAIMuage'),
-]
+    path('trainingMaterialCount', trainingMaterialCount.as_view(), name="trainingMaterialCount"),
+    path('personalAImodel', personalAImodel.as_view(), name="personalAImodel"),
+    path('updateAIM', updateAIM.as_view(), name='updateAIM'),
+    path('personalAImodelNum', personalAImodelNum.as_view(), name="personalAImodelNum"),
+    path('personalAImodelUsage', personalAImodelUsage.as_view(), name="personalAImodelUsage"),
+    path('train', train.as_view(), name="train"),
+    path('ttt', ttt.as_view(), name="ttt"), #测试用接口
+    ]

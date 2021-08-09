@@ -145,7 +145,7 @@ class returnUsrID(APIView):
 
             return Response(
                 data={"code": 200, "message": "Bingo!", "data": {
-                    "user_id": request.user.user_id,
+                    "user_id": request.user.id,
                 }},
                 status=HTTP_200_OK
             )

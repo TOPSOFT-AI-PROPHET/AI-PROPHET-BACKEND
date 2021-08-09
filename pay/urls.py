@@ -7,5 +7,5 @@ urlpatterns = [
     path('charge', charge.as_view(), name="charge"),
     path('deduct', deduct.as_view(), name="deduct"),
     path('codecharge', codecharge.as_view(), name="codecharge"),
-    path('PersonalTrans', PersonalTrans.as_view(),name="PersonalTrans"),
+    path('personalTrans', personalTrans.as_view(),name="personalTrans"),
 ]

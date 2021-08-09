@@ -26,10 +26,92 @@ import logging
 from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 from .models import UserProfile
+from django.db.models import Sum
+
+from AI.newML import Data_split
+from AI.newML import my_Cross_Validation
+from AI.newML import Machine_Learning
+
+from utils.cos import write_model, read_model
+
+from . import tasks
+
+import base64
+
+
+class ttt(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        t_id = tasks.test.delay()
+        res = {}
+        res['status'] = 1
+        res['message'] = 'successs'
+        res['task_id'] = t_id.task_id
+        return JsonResponse(res)
+
+
+
+
+# 异步在线训练 online-training 
+class train(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+
+        ainame = request.data["ai_name"]
+        ai_credit = request.data["ai_price"]
+        ai_true_description = request.data["ai_ture_desc"]
+        ai_description = request.data["ai_desc"]
+        ai_output_unit = request.data["ai_opUnit"] 
+        ai_type = request.data["ai_type"]
+        whether_auto_publish = request.data["auto_active"]
+        dataset_file = request.data['dataset']
+        
+        uuid_namespace = uuid.uuid3(uuid.NAMESPACE_OID,str(UserProfile.objects.get(id = request.user.id).id))
+        uuid_str = str(uuid.uuid3(uuid_namespace, str(uuid.uuid4()))) + ".joblib"
+
+        
+
+        if (whether_auto_publish == 1):
+            ai_published = 1
+        else:
+            ai_published = 0
+            
+
+
+        # update database
+        instance = AIModel.objects.create(ai_name=ainame, ai_url=uuid_str, ai_status=0, ai_true_description = ai_true_description, ai_published = ai_published ,
+                               ai_description=ai_description, ai_type=ai_type, ai_credit=ai_credit,ai_output_unit = ai_output_unit, user_id = request.user)
+
+
+        dataset_uuid = str(uuid.uuid4()) + ".csv"
+       
+
+        str_file = base64.b64encode(dataset_file.read()).decode("utf-8")
+
+        
+        # 创建新task递交给worker
+        t_id = tasks.ML_Traditional.delay(str_file,uuid_str,instance.ai_id)
+
+        res = {}
+        res['status'] = 1
+        res['message'] = 'successs'
+        res['task_id'] = t_id.task_id
+        return JsonResponse(res)
+
+
+        # TODO: Train model
+        
+
+        # Upload model
+        
+        # Save model
+        # Update task/user?
+        
+
 
 # 获取任务列表
-
-
 class getTaskList(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -98,21 +180,6 @@ class listAIM(APIView):
         # page = request.data['page']
         # paginator = Paginator(AIlist, 5)
         response = {}
-        # response['totalCount'] = paginator.count
-        # response['numPerPage'] = 5
-        # response['totalPage'] = paginator.num_pages
-        # try:
-        #     tasks = paginator.page(page)
-        # except PageNotAnInteger:
-        #     tasks = paginator.page(1)
-        # except InvalidPage:
-        #     resp = {}
-        #     resp["code"] = 404
-        #     resp['message'] = 'cannot find the page'
-        #     return JsonResponse(resp)
-        # except EmptyPage:
-        #     tasks = paginator.page(paginator.num_pages)
-        # response['pageNum'] = users.number
         response['list'] = json.loads(serializers.serialize("json", AIlist))
 
         res = {}
@@ -163,7 +230,27 @@ class validate(APIView):
             status=HTTP_200_OK
         )
 
-        
+class details(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):
+        task_id = request.data['task_id']
+        task_instance = Task.objects.get(task_id = task_id)
+        ai_instance = AIModel.objects.get(ai_id = task_instance.ai_id.ai_id)
+        Task_description=task_instance.description
+        ai_json=json.loads(task_instance.ai_json)
+        ai_url=task_instance.ai_id.ai_url
+        ai_result=task_instance.ai_result
+        status=task_instance.status
+        time_start=task_instance.time_start
+        ai_credit=task_instance.ai_id.ai_credit
+        ai_params=[]
+        sourcedata = json.loads(ai_instance.ai_description)
+        for i in range(sourcedata["total_param"]):
+            ai_params.append({"para_name":sourcedata["details"][i]["name"],"para_value":ai_json[i][str(i)]})
+        return Response(
+            data={"code" : 200, "description" : str(Task_description), "ai_json" : [ai_json], "ai_url" : str(ai_url),
+                "ai_result" : str(ai_result), "status" : status, "time_start" : time_start, "cost" : int(ai_credit), "ai_params" : ai_params}
+        ) 
 # 统计现有任务数量和已完成任务数量
 class numTask(APIView):
     permission_classes = (IsAuthenticated,)
@@ -223,33 +310,50 @@ class prediction(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        model_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
-        model = load(model_instance.ai_url)
-        parameters = [[]]
-        ai_json = []
-        for i in range(request.data['total_para']):
-            parameters[0].append(int(request.data['data'][i]['value']))
-            ai_json.append({str(i): int(request.data['data'][i]['value'])})
-        parameters = np.array(parameters)
-        result = model.predict(parameters)
+        # Get model data from DB
+        model_data = AIModel.objects.get(ai_id=request.data["ai_id"])
 
-        user_id = request.user
-        ai_id = request.data['ai_id']
-        Task.objects.create(user_id_id=user_id.id, ai_id_id=ai_id, ai_name=model_instance.ai_name, ai_json=json.dumps(
-            ai_json), ai_result=int(result[0]), status=100, description="Under development")
+        # Get model instance from S3 bucket
+        try:
+            model = read_model(model_data.ai_url)
+        except:
+            return Response({"message": "That model does not exist"}, status=404)
 
-        #扣费
-        Transaction.objects.create(user_id=request.user, status=1, method=1,
-                                   order=model_instance.ai_name, credit=model_instance.ai_credit)
-        request.user.credit = request.user.credit - model_instance.ai_credit
-        request.user.save()
+        # Create sample from request data
+        try:
+            sample = [[]]
+            ai_json = []
+            for i in range(request.data['total_para']):
+                sample[0].append(int(request.data['data'][i]['value']))
+                ai_json.append({str(i): int(request.data['data'][i]['value'])})
+        except:
+            return Response({"message": "Provided data is of an incorrect format"}, status=400)
 
-        return Response(
-            data={"code": 200, "message": "Bingo!", }
+        # Predict with model
+        pred = model.predict(np.array(sample).reshape(1, -1))[0]
+
+        # Create task
+        Task.objects.create(
+            user_id_id=request.user.id,
+            ai_id=model_data,
+            ai_name=model_data.ai_name,
+            description=request.data["task_desc"],
+            ai_json=json.dumps(ai_json),
+            ai_result=pred,
         )
 
+        # Create transaction and update user credit
+        Transaction.objects.create(
+            user_id=request.user, status=1, method="deduction", order=model_data.ai_name, credit=model_data.ai_credit
+        )
+        request.user.credit -= model_data.ai_credit
+        request.user.save()
+
+        return Response({"message": "Success"})
+
+
 # return ai_model details 
-class AImodelDetails(APIView):
+class modeldetail(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
@@ -257,14 +361,16 @@ class AImodelDetails(APIView):
         AI_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
         res = {}
         
-        if AI_instance.ai_frozen == 0:
+        if AI_instance.ai_frozen == 1:
             res['code'] = 200
             res['message'] = 'get success'
             response = json.loads(serializers.serialize("json", [AI_instance]))
             res['data'] = response
         else:
+            # To do
+            # Discuss with FE about the exception handler
             res["code"] = 404
-            res['message'] = 'cannot find the page'
+            res['message'] = 'cannot find model_details'
         return JsonResponse(res)
 
 # return model author 
@@ -275,12 +381,19 @@ class modelAuthor(APIView):
 
         AI_model = AIModel.objects.get(ai_id=request.data['ai_id'])
         res = {}
-        author = AI_model.ai_author
+        author_id = AI_model.user_id_id
+        author = UserProfile.objects.get(id=author_id)
+        author_name = author.username
+        author_profile_uuid = author.profile_image_uuid
+        author_singnature = author.user_sing
         publish = AI_model.ai_published
         res['code'] = 200
         res['message'] = 'get success'
-        res['author'] = author
+        res['author'] = author_name
         res['publish'] = publish
+        res['user_id'] = author_id
+        res['user_singnature'] = author_singnature
+        res['uuid'] = author_profile_uuid
         return JsonResponse(res)
 
 # we need to connect with cos service and pass in with uuid encrypted information
@@ -338,7 +451,7 @@ class unlockedModel(APIView):
 
     def post(self, request):
         AI_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
-        AI_instance.ai_frozen = 0
+        AI_instance.ai_frozen = 1
         AI_instance.save()
         res = {}
         res['code'] = 200
@@ -393,7 +506,7 @@ class personalAImodel(APIView):
         response = {}
         user_id = request.data['user_id']
         author = UserProfile.objects.get(id=user_id)
-        AIlist = author.aimodel_set.filter(ai_frozen=0)
+        AIlist = author.aimodel_set.filter(ai_frozen=1)
         res = {}
         res['code'] = 200
         res['message'] = 'get success'
@@ -405,7 +518,7 @@ class personalAImodel(APIView):
 class updateAIM(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def post(sef,request):
+    def post(self,request):
         id = request.data['ai_id']
         AIM = AIModel.objects.get(ai_id = id)
         AIM.ai_name = request.data['ai_name']
@@ -444,3 +557,30 @@ class getAIMuage(APIView):
         res['message'] = 'get success'
         res['AIM_usage'] = ai_AIM_usage
         return JsonResponse(res)
+#return the personal AImodel number
+class personalAImodelNum(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self,request):
+        id = request.data['user_id']
+        AIMNum = AIModel.objects.filter(user_id = id).aggregate(ai_model_num=Count("ai_id"))
+        res = {}
+        res['status'] = 200
+        res['message'] = 'get success'
+        res['ai_model_usage'] = str(AIMNum)
+        return JsonResponse(res)
+
+#return the personal AImodel usage
+class personalAImodelUsage(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self,request):
+        id = request.data['user_id']
+        AIMUse = AIModel.objects.filter(user_id = id).aggregate(ai_model_usage=Sum('ai_usage'))
+        AIMUse = AIMUse['ai_model_usage']
+        res = {}
+        res['status'] = 200
+        res['message'] = 'get success'
+        res['ai_model_usage'] = str(AIMUse)
+        return JsonResponse(res)
+        
