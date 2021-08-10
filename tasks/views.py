@@ -345,10 +345,19 @@ class prediction(APIView):
 
         model_data.ai_usage += 1
 
-        # Create transaction and update user credit
+        # Create transaction and update user credit (request user -credit author user + credit)
         Transaction.objects.create(
             user_id=request.user, status=1, method="deduction", order=model_data.ai_name, credit=model_data.ai_credit
         )
+
+        Transaction.objects.create(
+            user_id=UserProfile.objects.get(id=model_data.user_id_id), status=1, method="income", order=model_data.ai_name, credit=round(model_data.ai_credit/2))
+        )
+
+        incomeUser = UserProfile.objects.get(id=model_data.user_id_id)
+        incomeUser.credit += round(model_data.ai_credit/2)
+        incomeUser.save()
+
         request.user.credit -= model_data.ai_credit
         request.user.save()
 
