@@ -32,11 +32,28 @@ from AI.newML import Data_split
 from AI.newML import my_Cross_Validation
 from AI.newML import Machine_Learning
 
-from utils.cos import write_model
+from utils.cos import write_model, read_model
+
+from . import tasks
+
+import base64
+
+
+class ttt(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        t_id = tasks.test.delay()
+        res = {}
+        res['status'] = 1
+        res['message'] = 'successs'
+        res['task_id'] = t_id.task_id
+        return JsonResponse(res)
 
 
 
-# 在线训练 online-training
+
+# 异步在线训练 online-training 
 class train(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -50,27 +67,37 @@ class train(APIView):
         ai_type = request.data["ai_type"]
         whether_auto_publish = request.data["auto_active"]
         dataset_file = request.data['dataset']
-
+        
         uuid_namespace = uuid.uuid3(uuid.NAMESPACE_OID,str(UserProfile.objects.get(id = request.user.id).id))
         uuid_str = str(uuid.uuid3(uuid_namespace, str(uuid.uuid4()))) + ".joblib"
 
-        model = Machine_Learning(dataset_file, 0.2)
-
-        response = write_model(uuid_str,model)
+        
 
         if (whether_auto_publish == 1):
             ai_published = 1
         else:
             ai_published = 0
             
+
+
         # update database
-        AIModel.objects.create(ai_name=ainame, ai_url=uuid_str, ai_status=100, ai_true_description = ai_true_description, ai_published = ai_published ,
+        instance = AIModel.objects.create(ai_name=ainame, ai_url=uuid_str, ai_status=0, ai_true_description = ai_true_description, ai_published = ai_published ,
                                ai_description=ai_description, ai_type=ai_type, ai_credit=ai_credit,ai_output_unit = ai_output_unit, user_id = request.user)
+
+
+        dataset_uuid = str(uuid.uuid4()) + ".csv"
+       
+
+        str_file = base64.b64encode(dataset_file.read()).decode("utf-8")
+
+        
+        # 创建新task递交给worker
+        t_id = tasks.ML_Traditional.delay(str_file,uuid_str,instance.ai_id)
 
         res = {}
         res['status'] = 1
         res['message'] = 'successs'
-        res['data'] = response
+        res['task_id'] = t_id.task_id
         return JsonResponse(res)
 
 
@@ -149,7 +176,7 @@ class listAIM(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        AIlist = AIModel.objects.filter(ai_published = 1)
+        AIlist = AIModel.objects.filter(ai_published = 1,ai_status=100)
         # page = request.data['page']
         # paginator = Paginator(AIlist, 5)
         response = {}
@@ -203,7 +230,27 @@ class validate(APIView):
             status=HTTP_200_OK
         )
 
-        
+class details(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):
+        task_id = request.data['task_id']
+        task_instance = Task.objects.get(task_id = task_id)
+        ai_instance = AIModel.objects.get(ai_id = task_instance.ai_id.ai_id)
+        Task_description=task_instance.description
+        ai_json=json.loads(task_instance.ai_json)
+        ai_url=task_instance.ai_id.ai_url
+        ai_result=task_instance.ai_result
+        status=task_instance.status
+        time_start=task_instance.time_start
+        ai_credit=task_instance.ai_id.ai_credit
+        ai_params=[]
+        sourcedata = json.loads(ai_instance.ai_description)
+        for i in range(sourcedata["total_param"]):
+            ai_params.append({"para_name":sourcedata["details"][i]["name"],"para_value":ai_json[i][str(i)]})
+        return Response(
+            data={"code" : 200, "description" : str(Task_description), "ai_json" : [ai_json], "ai_url" : str(ai_url),
+                "ai_result" : str(ai_result), "status" : status, "time_start" : time_start, "cost" : int(ai_credit), "ai_params" : ai_params}
+        ) 
 # 统计现有任务数量和已完成任务数量
 class numTask(APIView):
     permission_classes = (IsAuthenticated,)
@@ -263,30 +310,50 @@ class prediction(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        model_instance = AIModel.objects.get(ai_id=request.data['ai_id'])
-        model = load(model_instance.ai_url)
-        parameters = [[]]
-        ai_json = []
-        for i in range(request.data['total_para']):
-            parameters[0].append(int(request.data['data'][i]['value']))
-            ai_json.append({str(i): int(request.data['data'][i]['value'])})
-        parameters = np.array(parameters)
-        result = model.predict(parameters)
+        # Get model data from DB
+        model_data = AIModel.objects.get(ai_id=request.data["ai_id"])
 
-        user_id = request.user
-        ai_id = request.data['ai_id']
-        Task.objects.create(user_id_id=user_id.id, ai_id_id=ai_id, ai_name=model_instance.ai_name, ai_json=json.dumps(
-            ai_json), ai_result=int(result[0]), status=100, description="Under development")
+        # Get model instance from S3 bucket
+        try:
+            model = read_model(model_data.ai_url)
+        except:
+            return Response({"message": "That model does not exist"}, status=404)
 
-        #扣费
-        Transaction.objects.create(user_id=request.user, status=1, method=1,
-                                   order=model_instance.ai_name, credit=model_instance.ai_credit)
-        request.user.credit = request.user.credit - model_instance.ai_credit
+        # Create sample from request data
+        try:
+            sample = [[]]
+            ai_json = []
+            for i in range(request.data['total_para']):
+                sample[0].append(int(request.data['data'][i]['value']))
+                ai_json.append({str(i): int(request.data['data'][i]['value'])})
+        except:
+            return Response({"message": "Provided data is of an incorrect format"}, status=400)
+
+        # Predict with model
+        pred = model.predict(np.array(sample).reshape(1, -1))[0]
+
+        # Create task
+        Task.objects.create(
+            user_id_id=request.user.id,
+            ai_id=model_data,
+            ai_name=model_data.ai_name,
+            description=request.data["task_desc"],
+            ai_json=json.dumps(ai_json),
+            ai_result=pred,
+            status=100,
+        )
+
+        model_data.ai_usage += 1
+
+        # Create transaction and update user credit
+        Transaction.objects.create(
+            user_id=request.user, status=1, method="deduction", order=model_data.ai_name, credit=model_data.ai_credit
+        )
+        request.user.credit -= model_data.ai_credit
         request.user.save()
 
-        return Response(
-            data={"code": 200, "message": "Bingo!", }
-        )
+        return Response({"message": "Success"})
+
 
 # return ai_model details 
 class modeldetail(APIView):
@@ -320,11 +387,16 @@ class modelAuthor(APIView):
         author_id = AI_model.user_id_id
         author = UserProfile.objects.get(id=author_id)
         author_name = author.username
+        author_profile_uuid = author.profile_image_uuid
+        author_singnature = author.user_sing
         publish = AI_model.ai_published
         res['code'] = 200
         res['message'] = 'get success'
         res['author'] = author_name
         res['publish'] = publish
+        res['user_id'] = author_id
+        res['user_singnature'] = author_singnature
+        res['uuid'] = author_profile_uuid
         return JsonResponse(res)
 
 # we need to connect with cos service and pass in with uuid encrypted information
@@ -467,7 +539,7 @@ class updateAIM(APIView):
 class personalAImodelNum(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get(self,request):
+    def post(self,request):
         id = request.data['user_id']
         AIMNum = AIModel.objects.filter(user_id = id).aggregate(ai_model_num=Count("ai_id"))
         res = {}
@@ -480,9 +552,10 @@ class personalAImodelNum(APIView):
 class personalAImodelUsage(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get(self,request):
+    def post(self,request):
         id = request.data['user_id']
         AIMUse = AIModel.objects.filter(user_id = id).aggregate(ai_model_usage=Sum('ai_usage'))
+        AIMUse = AIMUse['ai_model_usage']
         res = {}
         res['status'] = 200
         res['message'] = 'get success'

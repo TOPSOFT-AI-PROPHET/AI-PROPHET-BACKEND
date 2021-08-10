@@ -12,6 +12,7 @@ urlpatterns = [
     path('prediction', prediction.as_view(), name="prediction"),
     path('getAIM', getAIM.as_view(), name="getAIM"),
     path('modeldetail', modeldetail.as_view(), name="AImodelDetails"),
+    path('details', details.as_view(), name="details"),
     path('validate', validate().as_view(), name="validate"),
     path('modelAuthor', modelAuthor().as_view(), name="modelAuthor"),
     path('updatePublished', updatePublished().as_view(), name="updatePublished"),
@@ -25,5 +26,5 @@ urlpatterns = [
     path('personalAImodelNum', personalAImodelNum.as_view(), name="personalAImodelNum"),
     path('personalAImodelUsage', personalAImodelUsage.as_view(), name="personalAImodelUsage"),
     path('train', train.as_view(), name="train"),
-    path('ttt', ttt.as_view(), name="ttt"),
+    path('ttt', ttt.as_view(), name="ttt"), #测试用接口
     ]

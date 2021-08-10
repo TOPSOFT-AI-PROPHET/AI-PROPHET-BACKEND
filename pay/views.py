@@ -84,7 +84,7 @@ class generatecdk(APIView):
 class personalTrans(APIView):
     permission_classes = (IsAuthenticated,)
     
-    def get(self, request):
+    def post(self, request):
         id = request.data['user_id']
         response = {}
         Translist = Transaction.objects.filter(user_id = id)

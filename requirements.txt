@@ -47,4 +47,7 @@ cos-python-sdk-v5==1.9.4
 pandas
 celery==4.4.0
 redis==3.2.0
+<<<<<<< HEAD
 django-celery==3.3.1
+=======
+>>>>>>> 2d84bc54d59bcf8181c0788d5c194bda634cf787
