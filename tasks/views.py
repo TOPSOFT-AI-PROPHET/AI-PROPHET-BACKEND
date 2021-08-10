@@ -61,7 +61,7 @@ class train(APIView):
 
         ainame = request.data["ai_name"]
         ai_credit = request.data["ai_price"]
-        ai_true_description = request.data["ai_ture_desc"]
+        ai_true_description = request.data["ai_true_desc"]
         ai_description = request.data["ai_desc"]
         ai_output_unit = request.data["ai_opUnit"] 
         ai_type = request.data["ai_type"]
