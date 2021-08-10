@@ -73,7 +73,7 @@ class train(APIView):
 
         
 
-        if (whether_auto_publish == 1):
+        if (whether_auto_publish == "1"):
             ai_published = 1
         else:
             ai_published = 0
@@ -535,7 +535,7 @@ class updateAIM(APIView):
         AIM = AIModel.objects.get(ai_id = id)
         AIM.ai_name = request.data['ai_name']
         AIM.ai_credit = request.data['model_price']
-        AIM.ai_description = request.data['model_intro']
+        AIM.ai_true_description = request.data['model_intro']
         AIM.ai_type = request.data['model_type']
         AIM.ai_published = request.data['is_published']
         AIM.save()
