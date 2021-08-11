@@ -97,6 +97,7 @@ class train(APIView):
         res = {}
         res['status'] = 1
         res['message'] = 'successs'
+        res['code'] = 200
         res['task_id'] = t_id.task_id
         return JsonResponse(res)
 
