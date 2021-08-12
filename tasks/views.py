@@ -381,7 +381,7 @@ class modeldetail(APIView):
         res = {}
 
         #decline non-author access for all of unpublished models
-        if AI_instance.ai_published == 0 and AI_instance.user_id_id != request.user:
+        if AI_instance.ai_published == 0 and AI_instance.user_id_id != request.user.id:
             res['code'] = 400
             res['message'] = 'request fialed, the requesting model is not published.'
             return JsonResponse(res)
