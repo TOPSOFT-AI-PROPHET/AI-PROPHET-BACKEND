@@ -311,6 +311,12 @@ class prediction(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
+
+        #credit check
+        if request.user.credit < AIModel.objects.get(ai_id=request.data["ai_id"]).ai_credit :
+            return Response({"message": "Provided user has not got enough credit"}, status=400)
+
+
         # Get model data from DB
         model_data = AIModel.objects.get(ai_id=request.data["ai_id"])
 
