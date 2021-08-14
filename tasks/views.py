@@ -28,9 +28,9 @@ from qcloud_cos import CosS3Client
 from .models import UserProfile
 from django.db.models import Sum
 
-from AI.newML import Data_split
-from AI.newML import my_Cross_Validation
-from AI.newML import Machine_Learning
+from common.ai.traditional import Data_split
+from common.ai.traditional import my_Cross_Validation
+from common.ai.traditional import Machine_Learning
 
 from common.utils.cos import write_model, read_model
 

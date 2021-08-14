@@ -1,9 +1,9 @@
 from __future__ import absolute_import, unicode_literals
 from celery.task import task
 
-from AI.newML import Data_split
-from AI.newML import my_Cross_Validation
-from AI.newML import Machine_Learning
+from common.ai.traditional import Data_split
+from common.ai.traditional import my_Cross_Validation
+from common.ai.traditional import Machine_Learning
 
 from common.utils.cos import write_model, read_model
 import uuid
