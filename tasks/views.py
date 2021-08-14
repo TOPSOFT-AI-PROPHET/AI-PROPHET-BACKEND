@@ -359,7 +359,6 @@ class prediction(APIView):
 
         Transaction.objects.create(
             user_id=UserProfile.objects.get(id=model_data.user_id_id), status=1, method="income", order=model_data.ai_name, credit=round(model_data.ai_credit/2))
-        )
 
         incomeUser = UserProfile.objects.get(id=model_data.user_id_id)
         incomeUser.credit += round(model_data.ai_credit/2)

@@ -60,7 +60,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'drf_yasg2',
-    'djcelery',
 ]
 
 AUTH_USER_MODEL = "users.UserProfile"
