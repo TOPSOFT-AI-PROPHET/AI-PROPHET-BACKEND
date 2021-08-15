@@ -19,7 +19,7 @@ def write_model(key, model):
     with tempfile.TemporaryFile() as fp:
         joblib.dump(model, fp)
         fp.seek(0)
-        response = client.put_object(Bucket=bucket, Body=fp, Key=key, StorageClass='STANDARD',EnableMD5=False)
+        response = client.put_object(Bucket=bucket, Body=fp, Key=key, StorageClass="STANDARD", EnableMD5=False)
         return response
 
 
@@ -29,6 +29,11 @@ def read_model(key):
     bytes = BytesIO(response["Body"].get_raw_stream().read())
     model = joblib.load(bytes)
     return model
+
+
+def put_object(key, body):
+    response = client.put_object(Bucket=bucket, Body=body, Key=key, StorageClass="STANDARD", EnableMD5=False)
+    return response
 
 
 # Delete object in bucket

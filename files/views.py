@@ -7,13 +7,12 @@ from django.core.files.base import ContentFile
 from django.http import FileResponse
 from users.models import UserProfile
 from .models import File
-from qcloud_cos import CosConfig
-from qcloud_cos import CosS3Client
 import sys
 import logging
 import uuid
 import time
-# Create your views here.
+
+from common.utils.cos import put_object
 
 # 上传文件
 class uploadFile(APIView):
@@ -45,25 +44,9 @@ class uploadFile_cos(APIView):
         logging.basicConfig(level=logging.INFO, stream=sys.stdout)
         file_obj = request.FILES['upload_file']
         
-        # Steps needed to verifie the identity
-        secret_id = 'AKIDZx60e1HAamulLgNW1MUR7WdT6UkktKp4'      # 替换为用户的 secretId
-        secret_key = '7xW4KOCiyyoN4WhbDySjjSu42kiPq1vx'      # 替换为用户的 secretKey
-        region = 'ap-chengdu'     # 替换为用户的 Region
-        token = None                # 使用临时密钥需要传入 Token，默认为空，可不填
-        scheme = 'https'            # 指定使用 http/https 协议来访问 COS，默认为 https，可不填
-        config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
-        # 2. 获取客户端对象
-        client = CosS3Client(config)
-        # Generate uuid for secuirty need
         uuid_namespace = uuid.uuid4()
         uuid_str = str(uuid_namespace)+str(time.time())
-        # front end needs these info
-        response = client.put_object(
-        Bucket='prophetsrc-1305001068',
-        Body=file_obj.read(),
-        Key= uuid_str,
-        StorageClass='STANDARD',
-        EnableMD5=False)
+        response = put_object(file_obj.read(), uuid_str)
        
         user = UserProfile.objects.get(id = request.user.id)
         user.profile_image_uuid = uuid_str

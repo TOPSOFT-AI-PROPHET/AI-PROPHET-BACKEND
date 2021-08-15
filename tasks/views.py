@@ -1,8 +1,5 @@
-from django.contrib.auth.models import Permission
-from django.db import models
-from rest_framework import response
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
+from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.core import serializers
@@ -11,28 +8,18 @@ from pay.models import Transaction
 import json
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, InvalidPage
 from django.http import HttpResponse
-from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import Count
 import numpy as np
 from sklearn import *
-from sklearn.tree import DecisionTreeClassifier
-from joblib import dump, load
-from sklearn.ensemble import RandomForestClassifier
 from rest_framework.parsers import MultiPartParser
 import uuid
 import sys
 import logging
-from qcloud_cos import CosConfig
-from qcloud_cos import CosS3Client
 from .models import UserProfile
 from django.db.models import Sum
 
-from common.ai.traditional import Data_split
-from common.ai.traditional import my_Cross_Validation
-from common.ai.traditional import Machine_Learning
-
-from common.utils.cos import write_model, read_model
+from common.utils.cos import read_model, put_object
 
 from . import tasks
 
@@ -457,23 +444,9 @@ class updatemodelImage(APIView):
         file_obj = request.data["modelprofile"]
         aiid = request.data["ai_id"]
 
-        secret_id = "AKIDZx60e1HAamulLgNW1MUR7WdT6UkktKp4"  # 替换为用户的 secretId
-        secret_key = "7xW4KOCiyyoN4WhbDySjjSu42kiPq1vx"  # 替换为用户的 secretKey
-        region = "ap-chengdu"  # 替换为用户的 Region
-        token = None  # 使用临时密钥需要传入 Token，默认为空，可不填
-        scheme = "https"  # 指定使用 http/https 协议来访问 COS，默认为 https，可不填
-        config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
-        # 2. 获取客户端对象
-        client = CosS3Client(config)
         uuid_namespace = uuid.uuid3(uuid.NAMESPACE_OID, str(UserProfile.objects.get(id=request.user.id).id))
-        uuid_str = str(uuid.uuid3(uuid_namespace, str(uuid.uuid4())))
-        response = client.put_object(
-            Bucket="prophetsrc-1305001068",
-            Body=file_obj.read(),
-            Key=uuid_str + ".jpg",
-            StorageClass="STANDARD",
-            EnableMD5=True,
-        )
+        uuid_str = str(uuid.uuid3(uuid_namespace, str(uuid.uuid4()))) + ".jpg"
+        response = put_object(file_obj.read(), uuid_str)
         model = AIModel.objects.get(ai_id=aiid)
         model.ai_model_profile = uuid_str
         model.save()
