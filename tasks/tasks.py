@@ -8,14 +8,11 @@ from io import BytesIO
 
 @shared_task
 def ml_traditional(file_str, uuid_str, ai_id):
-    print("task registered")
     dataset_file = BytesIO(base64.b64decode(file_str))
 
     model = train_model(dataset_file, 0.2)
-    print("model", model)
 
     write_model(uuid_str, model)
     ai_instance = AIModel.objects.get(ai_id=ai_id)
     ai_instance.ai_status = 100
     ai_instance.save()
-    print("task finished")
