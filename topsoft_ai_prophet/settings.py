@@ -13,19 +13,7 @@ import os
 
 from pathlib import Path
 from dotenv import load_dotenv
-
-
-
 load_dotenv()
-
-# -*- coding: utf-8 -*- celery 配置信息
-CELERY_BROKER_URL = 'redis://localhost:6379/'  
-
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/'  
-
-CELERY_RESULT_SERIALIZER = 'json'
-
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -197,3 +185,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379/'  
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/'  

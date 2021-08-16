@@ -18,24 +18,9 @@ import sys
 import logging
 from .models import UserProfile
 from django.db.models import Sum
-
 from common.utils.cos import read_model, put_object
-
-from . import tasks
-
+from .tasks import ml_traditional
 import base64
-
-
-class ttt(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        t_id = tasks.test.delay()
-        res = {}
-        res["status"] = 1
-        res["message"] = "successs"
-        res["task_id"] = t_id.task_id
-        return JsonResponse(res)
 
 
 # 异步在线训练 online-training
@@ -43,8 +28,7 @@ class train(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-
-        ainame = request.data["ai_name"]
+        ai_name = request.data["ai_name"]
         ai_credit = request.data["ai_price"]
         ai_true_description = request.data["ai_true_desc"]
         ai_description = request.data["ai_desc"]
@@ -63,7 +47,7 @@ class train(APIView):
 
         # update database
         instance = AIModel.objects.create(
-            ai_name=ainame,
+            ai_name=ai_name,
             ai_url=uuid_str,
             ai_status=0,
             ai_true_description=ai_true_description,
@@ -80,7 +64,7 @@ class train(APIView):
         str_file = base64.b64encode(dataset_file.read()).decode("utf-8")
 
         # 创建新task递交给worker
-        t_id = tasks.ML_Traditional.delay(str_file, uuid_str, instance.ai_id)
+        t_id = ml_traditional.delay(str_file, uuid_str, instance.ai_id)
 
         res = {}
         res["status"] = 1
@@ -88,13 +72,6 @@ class train(APIView):
         res["code"] = 200
         res["task_id"] = t_id.task_id
         return JsonResponse(res)
-
-        # TODO: Train model
-
-        # Upload model
-
-        # Save model
-        # Update task/user?
 
 
 # 获取任务列表
