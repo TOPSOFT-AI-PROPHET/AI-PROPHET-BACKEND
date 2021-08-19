@@ -19,7 +19,7 @@ import logging
 from .models import UserProfile
 from django.db.models import Sum
 from common.utils.cos import read_model, put_object
-from .tasks import ml_traditional
+from .tasks import async_train_regressor, async_train_classifier
 import base64
 
 
@@ -63,8 +63,12 @@ class train(APIView):
 
         str_file = base64.b64encode(dataset_file.read()).decode("utf-8")
 
-        # 创建新task递交给worker
-        t_id = ml_traditional.delay(str_file, uuid_str, instance.ai_id)
+        if ai_type == "0":
+            # 创建新task递交给worker regression
+            t_id = async_train_regressor.delay(str_file, uuid_str, instance.ai_id)
+        else:
+            # 创建新task递交给worker classification
+            t_id = async_train_classifier.delay(str_file, uuid_str, instance.ai_id)
 
         res = {}
         res["status"] = 1
@@ -315,8 +319,8 @@ class prediction(APIView):
             sample = [[]]
             ai_json = []
             for i in range(request.data["total_para"]):
-                sample[0].append(int(request.data["data"][i]["value"]))
-                ai_json.append({str(i): int(request.data["data"][i]["value"])})
+                sample[0].append(float(request.data["data"][i]["value"]))
+                ai_json.append({str(i): float(request.data["data"][i]["value"])})
         except:
             return Response({"message": "Provided data is of an incorrect format"}, status=400)
 
