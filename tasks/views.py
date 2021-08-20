@@ -18,24 +18,9 @@ import sys
 import logging
 from .models import UserProfile
 from django.db.models import Sum
-
 from common.utils.cos import read_model, put_object
-
-from . import tasks
-
+from .tasks import async_train_regressor, async_train_classifier
 import base64
-
-
-class ttt(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        t_id = tasks.test.delay()
-        res = {}
-        res["status"] = 1
-        res["message"] = "successs"
-        res["task_id"] = t_id.task_id
-        return JsonResponse(res)
 
 
 # 异步在线训练 online-training
@@ -43,8 +28,7 @@ class train(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-
-        ainame = request.data["ai_name"]
+        ai_name = request.data["ai_name"]
         ai_credit = request.data["ai_price"]
         ai_true_description = request.data["ai_true_desc"]
         ai_description = request.data["ai_desc"]
@@ -63,7 +47,7 @@ class train(APIView):
 
         # update database
         instance = AIModel.objects.create(
-            ai_name=ainame,
+            ai_name=ai_name,
             ai_url=uuid_str,
             ai_status=0,
             ai_true_description=ai_true_description,
@@ -79,13 +63,12 @@ class train(APIView):
 
         str_file = base64.b64encode(dataset_file.read()).decode("utf-8")
 
-        
         if ai_type == "0":
             # 创建新task递交给worker regression
-            t_id = tasks.ML_Traditional.delay(str_file,uuid_str,instance.ai_id)
+            t_id = async_train_regressor.delay(str_file, uuid_str, instance.ai_id)
         else:
             # 创建新task递交给worker classification
-            t_id = tasks.ML_Traditional_c.delay(str_file,uuid_str,instance.ai_id)
+            t_id = async_train_classifier.delay(str_file, uuid_str, instance.ai_id)
 
         res = {}
         res["status"] = 1
@@ -93,13 +76,6 @@ class train(APIView):
         res["code"] = 200
         res["task_id"] = t_id.task_id
         return JsonResponse(res)
-
-        # TODO: Train model
-
-        # Upload model
-
-        # Save model
-        # Update task/user?
 
 
 # 获取任务列表
@@ -342,9 +318,9 @@ class prediction(APIView):
         try:
             sample = [[]]
             ai_json = []
-            for i in range(request.data['total_para']):
-                sample[0].append(float(request.data['data'][i]['value']))
-                ai_json.append({str(i): float(request.data['data'][i]['value'])})
+            for i in range(request.data["total_para"]):
+                sample[0].append(float(request.data["data"][i]["value"]))
+                ai_json.append({str(i): float(request.data["data"][i]["value"])})
         except:
             return Response({"message": "Provided data is of an incorrect format"}, status=400)
 
