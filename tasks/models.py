@@ -50,3 +50,9 @@ class Task(models.Model):
     time_start = models.DateTimeField(default=timezone.now)
     time_done = models.DateTimeField(blank=True, null=True)
     is_delete = models.IntegerField(default=0)
+
+
+class Token(models.Model):
+    token_id = models.BigAutoField(primary_key=True)
+    count = models.IntegerField(default=0)
+    credits_used = models.IntegerField(default=0)
