@@ -32,7 +32,7 @@ class AIModel(models.Model):
     #address of dataset
     ai_training_material = models.TextField(verbose_name='ai training material', null = True)
     ai_training_duration = models.IntegerField(default=0)
-    
+    create_date = models.DateTimeField(default=timezone.now)
 
 
 class Task(models.Model):
