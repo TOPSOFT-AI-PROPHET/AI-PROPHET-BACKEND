@@ -25,6 +25,8 @@ from . import tasks
 
 import base64
 
+from .permissions import IsOwnerOrReadOnly
+
 
 class ttt(APIView):
     permission_classes = (IsAuthenticated,)
@@ -102,7 +104,7 @@ class getTaskList(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        myTask = Task.objects.filter(user_id_id=request.user, is_delete=0)
+        myTask = Task.objects.filter(user_id_id=request.user, is_delete=0).order_by("-time_start")
         page = request.data["page"]
         paginator = Paginator(myTask, 5)
         response = {}
@@ -480,7 +482,7 @@ class unlockedModel(APIView):
 
 
 class updatePublished(APIView):
-    Permission_classes = (IsAuthenticated,)
+    Permission_classes = (IsOwnerOrReadOnly,)
 
     def post(self, request):
         AI_instance = AIModel.objects.get(ai_id=request.data["ai_id"])
@@ -535,7 +537,7 @@ class personalAImodel(APIView):
 
 
 class updateAIM(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsOwnerOrReadOnly,)
 
     def post(self, request):
         id = request.data["ai_id"]

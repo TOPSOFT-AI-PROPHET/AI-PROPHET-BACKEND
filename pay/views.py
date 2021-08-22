@@ -87,7 +87,7 @@ class personalTrans(APIView):
     def post(self, request):
         id = request.data['user_id']
         response = {}
-        Translist = Transaction.objects.filter(user_id = id)
+        Translist = Transaction.objects.filter(user_id = id).order_by("-create_time")
         response['list'] = json.loads(serializers.serialize("json",Translist))
 
         res = {}

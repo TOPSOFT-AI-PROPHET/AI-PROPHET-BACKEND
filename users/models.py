@@ -18,3 +18,5 @@ class UserProfile(AbstractUser):
     contact_number = models.TextField(blank=True, verbose_name='contact number')
     user_level = models.IntegerField(default=0)
     objects = CustomUserManager()
+    user_weiboLink = models.URLField(blank=True, verbose_name='weiboLink')
+    user_gitLink = models.URLField(blank=True, verbose_name='user_gitLink')

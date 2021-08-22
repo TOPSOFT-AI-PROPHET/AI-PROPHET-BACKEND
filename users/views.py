@@ -1,3 +1,5 @@
+from django.http.response import JsonResponse
+from tasks.models import AIModel
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
@@ -11,6 +13,8 @@ from rest_framework.parsers import MultiPartParser
 import sys
 import logging
 import uuid
+import json
+from django.core import serializers
 
 from common.utils.cos import put_object
 
@@ -135,3 +139,27 @@ class returnUsrID(APIView):
                 }},
                 status=HTTP_200_OK
             )
+
+#return the user information for the render
+class returnUserInfo(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self,request):
+        user_id = request.data['user_id']
+        user = UserProfile.objects.get(id = user_id)
+        AIlist = AIModel.objects.filter(user_id = user_id)
+        response = {}
+        response["list"] = json.loads(serializers.serialize("json", AIlist))
+
+        res = {}
+        res["status"] = 200
+        res["message"] = "get success"
+        res['user_nickName'] = user.nickname
+        res['user_level'] = user.user_level
+        res['user_sing'] = user.user_sing
+        res['user_weiboLink'] = user.user_weiboLink
+        res['user_gitLink'] = user.user_gitLink
+        res['user_dateJoined'] = user.date_joined
+        res['user_profileUUID'] = user.profile_image_uuid
+        res["data"] = response
+        return JsonResponse(res)

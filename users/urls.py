@@ -15,4 +15,5 @@ urlpatterns = [
     path('changePasswd', changePasswd.as_view(), name="changePasswd"),
     path('updateUserProfileImage',updateUserProfileImage.as_view(), name = "updateUserProfileImage"),
     path('returnUsrID', returnUsrID.as_view(), name="returnUsrID"),
+    path('returnUserInfo', returnUserInfo.as_view(), name="returnUserInfo"),
 ]
