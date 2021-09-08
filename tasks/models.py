@@ -52,7 +52,9 @@ class Task(models.Model):
     is_delete = models.IntegerField(default=0)
 
 
+# Tokens for validation when performing API predictions
 class Token(models.Model):
     token_id = models.BigAutoField(primary_key=True)
-    count = models.IntegerField(default=0)
+    count = models.IntegerField(default=0) # Number of times called
     credits_used = models.IntegerField(default=0)
+    running_status = models.IntegerField(default=0)
