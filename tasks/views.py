@@ -557,3 +557,28 @@ class personalAImodelUsage(APIView):
         res["message"] = "get success"
         res["ai_model_usage"] = str(AIMUse)
         return JsonResponse(res)
+
+#return a new page
+
+
+class APIPredict(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(sef, request):
+        user_id = request.data["user_id"]
+        user = UserProfile.objects.get(id=user_id)
+        token = user.user_token_id_id
+        Tokenlist = Token.objects.get(token_id=token)
+        usr_token = Tokenlist.token_id
+        times_called = Tokenlist.count
+        credit_used = Tokenlist.credits_used
+        running_status = Tokenlist.running_status
+
+        res = {}
+        res['code'] = 200
+        res['message'] = 'Bingo!'
+        res["usr_token"] = usr_token
+        res["times_called"] = times_called
+        res["credit_used"] = credit_used
+        res["running_status"] = running_status
+        return JsonResponse(res)
