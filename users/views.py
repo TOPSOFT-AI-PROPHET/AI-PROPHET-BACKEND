@@ -18,21 +18,42 @@ from django.core import serializers
 
 from common.utils.cos import put_object
 
+
 # 更新用户信息
 class updateUserProfile(APIView):
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
+        email = request.data['email']
+        tmp = UserProfile.objects.get(id = request.user).delete()
+        if email.find("@") == -1 or not email.endswith('.com'):
+            return Response(
+                data={"code": 403, "message": "Error email format."},
+                status=HTTP_403_FORBIDDEN
+            )
+        elif tmp.objects.filter(email = request.data['email']).exists():
+            return Response(
+                data={"code": 403, "message": "This email already exists."},
+                status=HTTP_403_FORBIDDEN
+            )
+        elif isinstance(request.data['contact_number'],int) == False:
+            return Response(
+                data={"code": 403, "message": "numbers only."},
+                status=HTTP_403_FORBIDDEN
+            )
+        else:
         
-        request.user.nickname = request.data["nickname"]
-        request.user.contact_number = request.data["contact_number"]
-        request.user.email = request.data["email"]
-        request.user.user_sing = request.data["user_sing"]
-        request.user.save()
-        return Response(
-            data={"code": 200, "message": "Userinfo updated."},
-            status=HTTP_200_OK
-        )
+            request.user.nickname = request.data["nickname"]
+            request.user.contact_number = request.data["contact_number"]
+            request.user.email = request.data["email"]
+            request.user.user_sing = request.data["user_sing"]
+            request.user.user_weiboLink = request.data["user_weiboLink"]
+            request.user.user_gitLink = request.data["user_gitLink"]
+            request.user.save()
+            return Response(
+                data={"code": 200, "message": "Userinfo updated."},
+                status=HTTP_200_OK
+            )
 
 # 修改用户头像 need to build connection to cos service and use uuid to encrpt it
 class updateUserProfileImage(APIView):
