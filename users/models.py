@@ -20,3 +20,4 @@ class UserProfile(AbstractUser):
     objects = CustomUserManager()
     user_weiboLink = models.URLField(blank=True, verbose_name='weiboLink')
     user_gitLink = models.URLField(blank=True, verbose_name='user_gitLink')
+    user_token_id = models.ForeignKey('tasks.Token', on_delete=models.CASCADE, null=True)

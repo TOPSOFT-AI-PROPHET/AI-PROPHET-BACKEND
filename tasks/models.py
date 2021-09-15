@@ -32,7 +32,7 @@ class AIModel(models.Model):
     #address of dataset
     ai_training_material = models.TextField(verbose_name='ai training material', null = True)
     ai_training_duration = models.IntegerField(default=0)
-    
+    create_date = models.DateTimeField(default=timezone.now)
 
 
 class Task(models.Model):
@@ -50,3 +50,11 @@ class Task(models.Model):
     time_start = models.DateTimeField(default=timezone.now)
     time_done = models.DateTimeField(blank=True, null=True)
     is_delete = models.IntegerField(default=0)
+
+
+# Tokens for validation when performing API predictions
+class Token(models.Model):
+    token_id = models.BigAutoField(primary_key=True)
+    count = models.IntegerField(default=0) # Number of times called
+    credits_used = models.IntegerField(default=0)
+    running_status = models.IntegerField(default=0)
