@@ -18,26 +18,11 @@ import sys
 import logging
 from .models import UserProfile
 from django.db.models import Sum
-
 from common.utils.cos import read_model, put_object
-
-from . import tasks
-
+from .tasks import async_train_regressor, async_train_classifier
 import base64
 
 from .permissions import IsOwnerOrReadOnly
-
-
-class ttt(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        t_id = tasks.test.delay()
-        res = {}
-        res["status"] = 1
-        res["message"] = "successs"
-        res["task_id"] = t_id.task_id
-        return JsonResponse(res)
 
 
 # 异步在线训练 online-training
@@ -45,8 +30,7 @@ class train(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-
-        ainame = request.data["ai_name"]
+        ai_name = request.data["ai_name"]
         ai_credit = request.data["ai_price"]
         ai_true_description = request.data["ai_true_desc"]
         ai_description = request.data["ai_desc"]
@@ -65,7 +49,7 @@ class train(APIView):
 
         # update database
         instance = AIModel.objects.create(
-            ai_name=ainame,
+            ai_name=ai_name,
             ai_url=uuid_str,
             ai_status=0,
             ai_true_description=ai_true_description,
@@ -81,8 +65,12 @@ class train(APIView):
 
         str_file = base64.b64encode(dataset_file.read()).decode("utf-8")
 
-        # 创建新task递交给worker
-        t_id = tasks.ML_Traditional.delay(str_file, uuid_str, instance.ai_id)
+        if ai_type == "0":
+            # 创建新task递交给worker regression
+            t_id = async_train_regressor.delay(str_file, uuid_str, instance.ai_id)
+        else:
+            # 创建新task递交给worker classification
+            t_id = async_train_classifier.delay(str_file, uuid_str, instance.ai_id)
 
         res = {}
         res["status"] = 1
@@ -90,13 +78,6 @@ class train(APIView):
         res["code"] = 200
         res["task_id"] = t_id.task_id
         return JsonResponse(res)
-
-        # TODO: Train model
-
-        # Upload model
-
-        # Save model
-        # Update task/user?
 
 
 # 获取任务列表
@@ -340,8 +321,8 @@ class prediction(APIView):
             sample = [[]]
             ai_json = []
             for i in range(request.data["total_para"]):
-                sample[0].append(int(request.data["data"][i]["value"]))
-                ai_json.append({str(i): int(request.data["data"][i]["value"])})
+                sample[0].append(float(request.data["data"][i]["value"]))
+                ai_json.append({str(i): float(request.data["data"][i]["value"])})
         except:
             return Response({"message": "Provided data is of an incorrect format"}, status=400)
 
@@ -577,4 +558,29 @@ class personalAImodelUsage(APIView):
         res["status"] = 200
         res["message"] = "get success"
         res["ai_model_usage"] = str(AIMUse)
+        return JsonResponse(res)
+
+#return a new page
+
+
+class APIPredict(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(sef, request):
+        user_id = request.data["user_id"]
+        user = UserProfile.objects.get(id=user_id)
+        token = user.user_token_id_id
+        Tokenlist = Token.objects.get(token_id=token)
+        usr_token = Tokenlist.token_id
+        times_called = Tokenlist.count
+        credit_used = Tokenlist.credits_used
+        running_status = Tokenlist.running_status
+
+        res = {}
+        res['code'] = 200
+        res['message'] = 'Bingo!'
+        res["usr_token"] = usr_token
+        res["times_called"] = times_called
+        res["credit_used"] = credit_used
+        res["running_status"] = running_status
         return JsonResponse(res)
