@@ -19,3 +19,5 @@ class UserProfile(AbstractUser):
     user_level = models.IntegerField(default=0)
     user_token_id = models.ForeignKey('tasks.Token', on_delete=models.CASCADE, null=True)
     objects = CustomUserManager()
+    user_weiboLink = models.URLField(verify_exists=False, verbose_name='weibo link')
+    user_gitLink = models.URLField(verify_exists=False, verbose_name='git link')
