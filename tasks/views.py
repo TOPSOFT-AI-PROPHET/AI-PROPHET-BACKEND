@@ -22,6 +22,8 @@ from common.utils.cos import read_model, put_object
 from .tasks import async_train_regressor, async_train_classifier
 import base64
 
+from .permissions import IsOwnerOnly
+
 
 # 异步在线训练 online-training
 class train(APIView):
@@ -83,7 +85,7 @@ class getTaskList(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        myTask = Task.objects.filter(user_id_id=request.user, is_delete=0)
+        myTask = Task.objects.filter(user_id_id=request.user, is_delete=0).order_by("-time_start")
         page = request.data["page"]
         paginator = Paginator(myTask, 5)
         response = {}
@@ -144,7 +146,7 @@ class listAIM(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        AIlist = AIModel.objects.filter(ai_published=1, ai_status=100)
+        AIlist = AIModel.objects.filter(ai_published=1, ai_status=100).order_by("-create_date")
         # page = request.data['page']
         # paginator = Paginator(AIlist, 5)
         response = {}
@@ -461,7 +463,7 @@ class unlockedModel(APIView):
 
 
 class updatePublished(APIView):
-    Permission_classes = (IsAuthenticated,)
+    Permission_classes = (IsOwnerOnly,)
 
     def post(self, request):
         AI_instance = AIModel.objects.get(ai_id=request.data["ai_id"])
@@ -516,7 +518,7 @@ class personalAImodel(APIView):
 
 
 class updateAIM(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsOwnerOnly,)
 
     def post(self, request):
         id = request.data["ai_id"]

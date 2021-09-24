@@ -1,3 +1,7 @@
+import json
+from django.core import serializers
+from django.http.response import JsonResponse
+from tasks.models import AIModel
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
@@ -19,16 +23,33 @@ class updateUserProfile(APIView):
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
-        
-        request.user.nickname = request.data["nickname"]
-        request.user.contact_number = request.data["contact_number"]
-        request.user.email = request.data["email"]
-        request.user.user_sing = request.data["user_sing"]
-        request.user.save()
-        return Response(
-            data={"code": 200, "message": "Userinfo updated."},
+        email = request.data['email']
+        tmp = UserProfile.objects.get(id = request.user).delete()
+        if email.find("@") == -1 or not email.endswith('.com'):
+            return Response(
+            data={"code": 200, "message": "Error email format."},
             status=HTTP_200_OK
-        )
+            )
+        elif tmp.objects.get(email = email).exists():
+            return Response(
+            data={"code": 200, "message": "Email address exists."},
+            status=HTTP_200_OK
+            )
+        elif request.data['contact_number'].is_integer() == False:
+            return Response(
+            data={"code": 200, "message": "Error contact number format."},
+            status=HTTP_200_OK
+            )
+        else:
+            request.user.nickname = request.data["nickname"]
+            request.user.contact_number = request.data["contact_number"]
+            request.user.email = request.data["email"]
+            request.user.user_sing = request.data["user_sing"]
+            request.user.save()
+            return Response(
+                data={"code": 200, "message": "Userinfo updated."},
+                status=HTTP_200_OK
+            )
 
 # 修改用户头像 need to build connection to cos service and use uuid to encrpt it
 class updateUserProfileImage(APIView):
@@ -135,3 +156,24 @@ class returnUsrID(APIView):
                 }},
                 status=HTTP_200_OK
             )
+
+class getProfileInfo(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self,request):
+
+        response = {}
+        res = {}
+        user_id = request.data['user_id']
+        user = UserProfile.objects.get(id = user_id)
+        AIlist = user.aimodel_set.filter(ai_frozen=1)
+        res = json.loads(serializers.serialize("json", AIlist))
+        response['User_nickName'] = user.nickname
+        response['user_level'] = user.user_level
+        response['user_sing'] = user.user_sing
+        response['user_weiboLink'] = user.user_weiboLink
+        response['user_gitLink'] = user.user_gitLink
+        response['user_dateJoined'] = user.date_joined
+        response['user_profileUUID'] = user.profile_image_uuid
+        response['AI_list'] = res
+        return JsonResponse(response)
